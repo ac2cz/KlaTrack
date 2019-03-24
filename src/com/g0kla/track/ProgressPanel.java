@@ -1,0 +1,48 @@
+package com.g0kla.track;
+
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+
+@SuppressWarnings("serial")
+public class ProgressPanel extends JDialog implements ActionListener {
+
+	String title;
+	
+	public ProgressPanel(JFrame owner, String message, boolean modal) {
+		super(owner, modal);
+		title = message;
+		setTitle(message);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+//		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		int x = 100;
+		int y = 100;
+		if (owner != null) {
+			x = owner.getX() + owner.getWidth()/2 - (message.length()*9)/2;
+			y = owner.getY() + owner.getHeight()/2;
+		} else {
+			Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+			x = (int) ((dimension.getWidth() - this.getWidth()) / 2);
+			y = (int) ((dimension.getHeight() - this.getHeight()) / 2);
+		}
+		setBounds(100, 100, message.length()*9, 10);
+	
+		    this.setLocation(x, y);
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public void updateProgress(int p) {
+		if (p == 100) this.dispose();
+		setTitle(title + " (" + p + "%)");
+	}
+
+}
