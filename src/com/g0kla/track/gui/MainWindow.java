@@ -67,7 +67,7 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 	
 	// Config
 	//public static final String KEPS_FILE_DIR = "keps_file_dir";
-	public static final String KEPS_FILE = "keps_file";
+	public static final String DATA_DIR = "data_dir";
 	public static final String PAST = "past";
 	public static final String FORECAST = "forecast";
 	public static final String TIME_SLICE = "time_slice";
@@ -81,6 +81,7 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		addWindowListener(this);
 		config = new ConfigFile(this, dataDir + File.separator + "klatracker.properties");
+		config.set(DATA_DIR, dataDir);
 		fontSize = MainWindow.config.getInt(SatPositionTimePlot.GRAPH_AXIS_FONT_SIZE);
 		if (fontSize == 0) {
 			fontSize = 12;
@@ -100,7 +101,7 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
 		getContentPane().add(bottomPanel, BorderLayout.SOUTH);
 		bottomPanel.add(new Box.Filler(new Dimension(10,0), new Dimension(10,0), new Dimension(10,0)));
-		butSettings = createIconButton("/images/setup_icon.png","Setup","Setup and preferences");
+		butSettings = createIconButton("/setup_icon.png","Setup","Setup and preferences");
 		bottomPanel.add(butSettings);
 
 		bottomPanel.add(new Box.Filler(new Dimension(10,0), new Dimension(10000,0), new Dimension(10000,0)));
@@ -178,7 +179,12 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 
 		satManager = new SatManager(this);
 		
+		try {
 		startPositionCalc();
+		} catch (Exception e) {
+			errorDialog("ERROR", "Could not start the calculations.  Make sure the TLEs were downloaded\n" + e);
+			return;
+		}
 		satPositionTimePlot = new SatPositionTimePlot(positionCalc.getSatPositions());
 		
 		JPanel panelCenter = new JPanel();

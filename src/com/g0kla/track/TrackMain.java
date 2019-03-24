@@ -37,8 +37,8 @@ public class TrackMain {
 			if (!home.exists()) {
 				MainWindow.infoDialog("INITIAL SETUP", "Data will be stored in:\n" + home.getAbsolutePath());
 				home.mkdirs();
-				dataDir = home.getAbsolutePath();
 			}
+			dataDir = home.getAbsolutePath();
 		} else {
 			File data = new File(dataDir);
 			if (!data.exists()) {

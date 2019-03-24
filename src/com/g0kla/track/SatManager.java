@@ -2,7 +2,6 @@ package com.g0kla.track;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -92,11 +91,11 @@ public class SatManager {
 	 */
 
 	public void fetchTLEFile() {
-		System.out.println("Checking for new Keps");
+		//System.out.println("Checking for new Keps");
 		String urlString = MainWindow.config.get(SettingsDialog.WEB_SITE_URL);
 		if (urlString == null)
 			urlString = SatManager.DEFAULT_WEB_SITE_URL;
-		String file = "nasabare.txt";
+		String file = MainWindow.config.get(MainWindow.DATA_DIR) + File.separator + "nasabare.txt";
 		String filetmp = file + ".tmp";
 		File f1 = new File(filetmp);
 		File f2 = new File(file);
@@ -163,13 +162,13 @@ public class SatManager {
 			return;
 
 		} catch (MalformedURLException e) {
-			System.out.println("Invalid location for Keps file: " + file);
+			MainWindow.errorDialog("ERROR","Invalid location for Keps file: " + file  + "\n" + e);
 			try { remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
 		} catch (IOException e) {
-			System.out.println("Could not write Keps file: " + file);
+			MainWindow.errorDialog("ERROR","Could not write Keps file: " + file + "\n" + e);
 			try { remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
 		} catch (IndexOutOfBoundsException e) {
-			System.out.println("Keps file is corrupt: " + file);
+			MainWindow.errorDialog("ERROR","Keps file is corrupt: " + file  + "\n" + e);
 			try { remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
 		} finally {
 			initProgress.updateProgress(100);
