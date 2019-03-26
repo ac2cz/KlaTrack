@@ -12,6 +12,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -59,6 +60,7 @@ public class SatManager {
 		List<String> names = new ArrayList<String>();
 		for (TLE tle : TLEs)
 			names.add(tle.getName());
+		Collections.sort(names);
 		return names;
 	}
 	

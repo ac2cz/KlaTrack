@@ -37,6 +37,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 import com.g0kla.track.SatManager;
+import com.g0kla.track.TrackMain;
 
 public class SettingsDialog extends JDialog implements ActionListener, WindowListener, FocusListener, ItemListener {
 	private static final long serialVersionUID = 1L;
@@ -204,7 +205,9 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 		leftcolumnpanel2.add(new Box.Filler(new Dimension(10,10), new Dimension(50,400), new Dimension(100,500)));
 
 		leftcolumnpanel.add(new Box.Filler(new Dimension(10,10), new Dimension(50,400), new Dimension(100,500)));
-
+		JLabel version = new JLabel("G0KLA Tracker Version " + TrackMain.VERSION);
+		leftcolumnpanel.add(version);
+		
 		// Add right column
 		JPanel rightcolumnpanel = new JPanel();
 		centerpanel.add(rightcolumnpanel);

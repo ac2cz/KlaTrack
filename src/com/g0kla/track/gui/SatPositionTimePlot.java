@@ -90,6 +90,7 @@ public class SatPositionTimePlot extends JPanel {
 	 */
 	public void paintComponent(Graphics g) {
 		super.paintComponent( g ); // call superclass's paintComponent  
+		try {
 		Graphics2D g2 = ( Graphics2D ) g; // cast g to Graphics2D  
 		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);	
 
@@ -180,13 +181,15 @@ public class SatPositionTimePlot extends JPanel {
 			int labelHeight = fontSize*4;
 			int numVertLabels = (graphHeight-topborder-bottomborder) / labelHeight;
 			if (MainWindow.config.getBoolean(SettingsDialog.PLOT_AZ)) {
-				int step = 360/numVertLabels;
+				//int step = 360/numVertLabels;
+				int step = (int)getStep(360, numVertLabels, true);
 				for (int e=0; e<=360; e+=step) {
 					int y = getRatioPosition(0,360, e, graphHeight-topborder-bottomborder);
 					g.drawString(""+e, sideborder, y+topborder-lineheight);
 				}
 			} else {
-				int step = 90/numVertLabels;
+				//int step = 90/numVertLabels;
+				int step = (int)getStep(90, numVertLabels, true);
 				for (int e=0; e<=90; e+=step) {
 					int y = getRatioPosition(0,90, e, graphHeight-topborder-bottomborder);
 					g.drawString(""+e, sideborder, graphHeight-y-topborder);
@@ -198,7 +201,25 @@ public class SatPositionTimePlot extends JPanel {
 		g2.setColor(base03);
 		int now = getRatioPosition(0.0, (double)satPositions.getNumberOfSamples(), (double)satPositions.nowPointer, graphWidth);
 		g2.drawLine(now, topborder, now, graphHeight-bottomborder);
+		} catch (Exception e) {
+			MainWindow.errorDialog("Oops", "Crashed the rendering loop.  Guess you need to restart\n" + e);
+		}
 
+	}
+	
+	private static double getStep(double range, int ticks, boolean intStep) {
+		double step = 0;
+		
+		if (!intStep && range/ticks <= 0.01) step = 0.01d;
+		else if (range/ticks <= 1) step = 1.00d;
+		else if (range/ticks <= 5) step = 5.00d;
+		else if (range/ticks <= 10) step = 10.00d;
+		else if (range/ticks <= 15) step = 15.00d;
+		else if (range/ticks <= 30) step = 30.00d;
+		else if (range/ticks <= 45) step = 45.00d;
+		else if (range/ticks <= 90) step = 90.00d;
+		else if (range/ticks <= 180) step = 180.00d;
+		return step;
 	}
 	
 	private void plotTimeAxis(Graphics g, int graphHeight, int graphWidth) {
