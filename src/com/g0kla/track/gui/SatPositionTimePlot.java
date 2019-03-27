@@ -117,6 +117,7 @@ public class SatPositionTimePlot extends JPanel {
 		boolean plotElevation = true;
 		double[] maxy = new double[satPositions.getNumberOfSats()];
 		boolean[] wroteName = new boolean[satPositions.getNumberOfSats()];
+		int lasty[] = new int[satPositions.getNumberOfSats()];
 		for (int s=0; s<satPositions.getNumberOfSamples(); s++) {
 			SatPos[] satPos = satPositions.get(s);
 			
@@ -139,9 +140,15 @@ public class SatPositionTimePlot extends JPanel {
 							g2.setColor(sunyellow);
 					} else
 						g2.setColor(satColors[i%satColors.length]);
-					if (!MainWindow.config.getBoolean(SettingsDialog.PLOT_AZ))
-						g2.fillRect(x, graphHeight-topborder-y, lineWidth, y);
-					else // plot azimuth
+					if (!MainWindow.config.getBoolean(SettingsDialog.PLOT_AZ)) {
+						if (MainWindow.config.getBoolean(SettingsDialog.OUTLINE_PLOT)) {
+							if (lasty[i] == 0) lasty[i] = graphHeight-topborder-y;
+							g2.drawLine(x, lasty[i], x, graphHeight-topborder-y);
+							lasty[i] = graphHeight-topborder-y;
+						} else {
+							g2.fillRect(x, graphHeight-topborder-y, lineWidth, y);							
+						}
+					} else // plot azimuth
 						g2.fillRect(x, y-lineheight, lineWidth, lineheight);
 					//g2.drawLine(x, y, x, graphHeight-border);
 					if (!wroteName[i])

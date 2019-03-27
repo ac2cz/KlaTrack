@@ -60,6 +60,7 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 	public static final String PLOT_AZ = "plot_az";
 	public static final String SHOW_EL = "show_el";
 	public static final String SHOW_VERT_AXIS = "show_vert_axis";
+	public static final String OUTLINE_PLOT = "outline_plot";
 
 	public static final String DEFAULT_LATITUDE = "0";//"45.4920";
 	public static final String DEFAULT_LONGITUDE = "0"; //"-73.5042";
@@ -68,7 +69,7 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 
 	JButton btnSave, btnCancel, btnBrowse;
 	JTextField txtServerUrl, txtLatitude, txtLongitude, txtMaidenhead, txtAltitude, txtFont;
-	JCheckBox cbShowSun, cbUseUtc, cbRelativeTime, cbPlotAz, cbShowEl, cbShowVertAxis;
+	JCheckBox cbShowSun, cbUseUtc, cbRelativeTime, cbPlotAz, cbSolidPlot, cbShowEl, cbShowVertAxis;
 	JList list;
 		
 	/**
@@ -190,6 +191,8 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 				MainWindow.config.getBoolean(USE_UTC) );
 		cbPlotAz = addCheckBoxRow(leftcolumnpanel2, "Plot azimuth", "Plot Azimuth instead of Elevation",
 				MainWindow.config.getBoolean(PLOT_AZ) );
+		cbSolidPlot = addCheckBoxRow(leftcolumnpanel2, "Outline elevation humps", "Plot the elevation without a solid background",
+					MainWindow.config.getBoolean(OUTLINE_PLOT) );
 		cbShowEl = addCheckBoxRow(leftcolumnpanel2, "Print max elevation with name", "Print the maximum eleveation for that pass under the sat name",
 				MainWindow.config.getBoolean(SHOW_EL) );
 		cbShowVertAxis = addCheckBoxRow(leftcolumnpanel2, "Show vertical axis labels", "Display the vertical axis on left side of display",
@@ -547,6 +550,7 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 			mainWindow.config.set(USE_UTC, cbUseUtc.isSelected());
 			mainWindow.config.set(RELATIVE_TIME, cbRelativeTime.isSelected());
 			mainWindow.config.set(PLOT_AZ, cbPlotAz.isSelected());
+			mainWindow.config.set(OUTLINE_PLOT, cbSolidPlot.isSelected());
 			mainWindow.config.set(SHOW_EL, cbShowEl.isSelected());
 			mainWindow.config.set(SHOW_VERT_AXIS, cbShowVertAxis.isSelected());
 			

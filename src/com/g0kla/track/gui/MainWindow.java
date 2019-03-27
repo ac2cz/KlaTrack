@@ -158,7 +158,6 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		bottomPanel.add(lblTimeSlice);
 		lblTimeSlice.setBorder(new EmptyBorder(2, 10, 2, 10) ); // top left bottom right
 		List<Integer> timeSliceList = new ArrayList<Integer>();
-		timeSliceList.add(1);
 		timeSliceList.add(10);
 		timeSliceList.add(30);
 		timeSliceList.add(60);
