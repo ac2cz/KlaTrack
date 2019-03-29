@@ -53,6 +53,9 @@ public class SatPositionTimePlot extends JPanel {
 	public static final Color yellow = new Color(0xb58900); //yellow
 	public static final Color orange = new Color(0xcb4b16); // orange
 
+	Color background;
+	Color backgroundDepth;
+	
 	public static final Color[] satColors = {
 			yellow, //yellow
 			orange, // orange
@@ -76,7 +79,14 @@ public class SatPositionTimePlot extends JPanel {
 		fontSize = MainWindow.config.getInt(GRAPH_AXIS_FONT_SIZE);
 		if (fontSize == 0) fontSize = 12;
 
-		setBackground(base3);
+		if (MainWindow.config.getBoolean(SettingsDialog.DARK_THEME)) {
+			background = base03;
+			backgroundDepth = base01;
+		} else {
+			background = base3;
+			backgroundDepth = base2;
+		}
+		setBackground(background);
 	}
 	
 	public void setPositions(SatPositions satPositions) {
@@ -96,7 +106,7 @@ public class SatPositionTimePlot extends JPanel {
 
 		g.setFont(new Font("SansSerif", Font.PLAIN, fontSize));
 
-		setBackground(base3);
+		setBackground(background);
 //		g.drawString("Spacecraft Timeline", 5, fontSize*2);
 
 		
@@ -205,7 +215,7 @@ public class SatPositionTimePlot extends JPanel {
 		}
 		
 		// Vertical "now" line
-		g2.setColor(base03);
+		g2.setColor(base01);
 		int now = getRatioPosition(0.0, (double)satPositions.getNumberOfSamples(), (double)satPositions.nowPointer, graphWidth);
 		g2.drawLine(now, topborder, now, graphHeight-bottomborder);
 		} catch (Exception e) {

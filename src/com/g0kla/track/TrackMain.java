@@ -82,7 +82,7 @@ public class TrackMain {
 					Thread klaTrack = new Thread(window);
 					klaTrack.start();
 					try {
-						window.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/AMSAT50_sm.jpg")));
+						window.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/kla_track_icon.jpg")));
 					} catch (Exception e) { }; // ignore, means we have no icon
 				} catch (Exception e) {
 					System.err.println("SERIOUS ERROR - Uncaught and thrown from GUI");

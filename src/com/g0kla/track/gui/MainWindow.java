@@ -1,6 +1,8 @@
 package com.g0kla.track.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FileDialog;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -76,12 +79,24 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 	public static final String MAINWINDOW_WIDTH = "mainwindow_width";
 	public static final String MAINWINDOW_HEIGHT = "mainwindow_height";
 	
+	Color background;
+	Color backgroundDepth;
+	Color fontColor;
+	
 	public MainWindow(String dataDir) {
 		super("G0KLA Tracker");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		addWindowListener(this);
 		config = new ConfigFile(this, dataDir + File.separator + "klatracker.properties");
 		config.set(DATA_DIR, dataDir);
+		if (MainWindow.config.getBoolean(SettingsDialog.DARK_THEME)) {
+			background = SatPositionTimePlot.base03;
+			backgroundDepth = SatPositionTimePlot.base01;
+		} else {
+			background = SatPositionTimePlot.base3;
+			backgroundDepth = SatPositionTimePlot.base2;
+		}
+		setBackground(background);
 		fontSize = MainWindow.config.getInt(SatPositionTimePlot.GRAPH_AXIS_FONT_SIZE);
 		if (fontSize == 0) {
 			fontSize = 12;
@@ -101,13 +116,14 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
 		getContentPane().add(bottomPanel, BorderLayout.SOUTH);
 		bottomPanel.add(new Box.Filler(new Dimension(10,0), new Dimension(10,0), new Dimension(10,0)));
-		butSettings = createIconButton("/setup_icon.png","Setup","Setup and preferences");
+		butSettings = createIconButton("/setup_icon2.png","Setup","Setup and preferences");
 		bottomPanel.add(butSettings);
 
 		bottomPanel.add(new Box.Filler(new Dimension(10,0), new Dimension(10000,0), new Dimension(10000,0)));
 
 		JLabel lblPast = new JLabel("From past (hrs)");
 		lblPast.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, fontSize));
+		lblPast.setForeground(SatPositionTimePlot.base01);
 		bottomPanel.add(lblPast);
 		lblPast.setBorder(new EmptyBorder(2, 10, 2, 10) ); // top left bottom right
 		List<Integer> pastPeriodList = new ArrayList<Integer>();
@@ -122,8 +138,20 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		pastPeriodList.add(24);
 		SpinnerListModel pastModel = new SpinnerListModel(pastPeriodList);
 		spinPastPeriod = new JSpinner(pastModel);
-		spinPastPeriod.getEditor().getComponent(0).setBackground(SatPositionTimePlot.base3);
+		spinPastPeriod.getEditor().getComponent(0).setBackground(backgroundDepth);
 		((JTextField) spinPastPeriod.getEditor().getComponent(0)).setColumns(2);
+		spinPastPeriod.setBorder(BorderFactory.createEmptyBorder());
+//		 int n = spinPastPeriod.getComponentCount();
+//		for (int i=0; i<n; i++)
+//	    {
+//	        Component c = spinPastPeriod.getComponent(i);
+//	        if (c instanceof JButton)
+//	        {
+//	           // c.setForeground(foreground); // Has no effect
+//	            c.setBackground(background);
+//	        }
+//	    }
+		
 		bottomPanel.add(spinPastPeriod);
 		spinPastPeriod.addChangeListener(this);
 		pastPeriod = config.getInt(PAST);
@@ -131,6 +159,7 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		
 		JLabel lblForecast = new JLabel("to future (hrs)");
 		lblForecast.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, fontSize));
+		lblForecast.setForeground(SatPositionTimePlot.base01);
 		bottomPanel.add(lblForecast);
 		lblForecast.setBorder(new EmptyBorder(2, 10, 2, 10) ); // top left bottom right
 		List<Integer> forecastPeriodList = new ArrayList<Integer>();
@@ -145,7 +174,8 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		forecastPeriodList.add(48);
 		SpinnerListModel forecastModel = new SpinnerListModel(forecastPeriodList);
 		spinForecastPeriod = new JSpinner(forecastModel);
-		spinForecastPeriod.getEditor().getComponent(0).setBackground(SatPositionTimePlot.base3);
+		spinForecastPeriod.setBorder(BorderFactory.createEmptyBorder());
+		spinForecastPeriod.getEditor().getComponent(0).setBackground(backgroundDepth);
 		((JTextField) spinForecastPeriod.getEditor().getComponent(0)).setColumns(2);
 		bottomPanel.add(spinForecastPeriod);
 		spinForecastPeriod.addChangeListener(this);
@@ -155,6 +185,7 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		
 		JLabel lblTimeSlice = new JLabel("every (secs)");
 		lblTimeSlice.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, fontSize));
+		lblTimeSlice.setForeground(SatPositionTimePlot.base01);
 		bottomPanel.add(lblTimeSlice);
 		lblTimeSlice.setBorder(new EmptyBorder(2, 10, 2, 10) ); // top left bottom right
 		List<Integer> timeSliceList = new ArrayList<Integer>();
@@ -163,7 +194,8 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		timeSliceList.add(60);
 		SpinnerListModel timeSliceModel = new SpinnerListModel(timeSliceList);
 		spinTimeSlice = new JSpinner(timeSliceModel);
-		spinTimeSlice.getEditor().getComponent(0).setBackground(SatPositionTimePlot.base3);
+		spinTimeSlice.setBorder(BorderFactory.createEmptyBorder());
+		spinTimeSlice.getEditor().getComponent(0).setBackground(backgroundDepth);
 		((JTextField) spinTimeSlice.getEditor().getComponent(0)).setColumns(2);
 		bottomPanel.add(spinTimeSlice);
 		spinTimeSlice.addChangeListener(this);
@@ -174,7 +206,7 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 //		JLabel lblSampleRate = new JLabel("From -" + pastPeriod/60 + " hrs To +" +forecastPeriod/60 +" hrs every: " + calcFreq + " secs");
 //		lblSampleRate.setBorder(new EmptyBorder(2, 10, 2, 10) ); // top left bottom right
 //		bottomPanel.add(lblSampleRate);
-		bottomPanel.setBackground(SatPositionTimePlot.base2);
+		bottomPanel.setBackground(background);
 
 		satManager = new SatManager(this);
 		

@@ -61,6 +61,7 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 	public static final String SHOW_EL = "show_el";
 	public static final String SHOW_VERT_AXIS = "show_vert_axis";
 	public static final String OUTLINE_PLOT = "outline_plot";
+	public static final String DARK_THEME = "dark_theme";
 
 	public static final String DEFAULT_LATITUDE = "0";//"45.4920";
 	public static final String DEFAULT_LONGITUDE = "0"; //"-73.5042";
@@ -69,7 +70,7 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 
 	JButton btnSave, btnCancel, btnBrowse;
 	JTextField txtServerUrl, txtLatitude, txtLongitude, txtMaidenhead, txtAltitude, txtFont;
-	JCheckBox cbShowSun, cbUseUtc, cbRelativeTime, cbPlotAz, cbSolidPlot, cbShowEl, cbShowVertAxis;
+	JCheckBox cbShowSun, cbUseUtc, cbRelativeTime, cbPlotAz, cbSolidPlot, cbShowEl, cbShowVertAxis, cbDarkTheme;
 	JList list;
 		
 	/**
@@ -197,6 +198,8 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 				MainWindow.config.getBoolean(SHOW_EL) );
 		cbShowVertAxis = addCheckBoxRow(leftcolumnpanel2, "Show vertical axis labels", "Display the vertical axis on left side of display",
 				MainWindow.config.getBoolean(SHOW_VERT_AXIS) );
+		cbDarkTheme = addCheckBoxRow(leftcolumnpanel2, "Dark Theme", "Color the display with a dark background",
+				MainWindow.config.getBoolean(DARK_THEME) );
 		txtFont = addSettingsRow(leftcolumnpanel2, 10, "Font Size", 
 				"Change the Font size to make things easier to read", 
 				MainWindow.config.get(SatPositionTimePlot.GRAPH_AXIS_FONT_SIZE)); // South is negative
@@ -553,6 +556,11 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 			mainWindow.config.set(OUTLINE_PLOT, cbSolidPlot.isSelected());
 			mainWindow.config.set(SHOW_EL, cbShowEl.isSelected());
 			mainWindow.config.set(SHOW_VERT_AXIS, cbShowVertAxis.isSelected());
+			if (mainWindow.config.getBoolean(DARK_THEME) != cbDarkTheme.isSelected()) {
+				mainWindow.config.set(DARK_THEME, cbDarkTheme.isSelected());
+				MainWindow.infoDialog("New Theme", "Restart to see the effect of the new color scheme");
+			}			
+
 			
 			if (dispose) {
 				((MainWindow)getParent()).startPositionCalc();
