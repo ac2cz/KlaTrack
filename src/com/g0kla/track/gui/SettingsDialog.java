@@ -68,7 +68,7 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 	public static final String DEFAULT_ALTITUDE = "0";
 	public static final String DEFAULT_LOCATOR = "NONE";
 
-	JButton btnSave, btnCancel, btnBrowse;
+	JButton btnSave, btnCancel, btnBrowse, btnClear, btnSelectAll;
 	JTextField txtServerUrl, txtLatitude, txtLongitude, txtMaidenhead, txtAltitude, txtFont;
 	JCheckBox cbShowSun, cbUseUtc, cbRelativeTime, cbPlotAz, cbSolidPlot, cbShowEl, cbShowVertAxis, cbDarkTheme;
 	JList list;
@@ -221,6 +221,17 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 		TitledBorder rightTitle = title("Spacecraft to plot");
 		rightcolumnpanel.setBorder(rightTitle);
 		
+		JPanel rightcolumnbutpanel = new JPanel();
+		rightcolumnbutpanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		rightcolumnpanel.add(rightcolumnbutpanel);
+
+		btnSelectAll = new JButton("Select all");
+		rightcolumnbutpanel.add(btnSelectAll);
+		btnClear = new JButton("Clear");
+		rightcolumnbutpanel.add(btnClear);
+		btnSelectAll.addActionListener(this);
+		btnClear.addActionListener(this);	
+		
 		DefaultListModel listModel = new DefaultListModel();
 		List<String> names = ((MainWindow)getParent()).satManager.getSatNames();
 		for (String name : names)
@@ -249,7 +260,7 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 		
 		JScrollPane listScroller = new JScrollPane(list);
 		listScroller.setPreferredSize(new Dimension(600, 900));
-		listScroller.setAlignmentX(LEFT_ALIGNMENT);
+		//listScroller.setAlignmentX(LEFT_ALIGNMENT);
 		
 		rightcolumnpanel.add(listScroller);
 
@@ -496,6 +507,13 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 		if (e.getSource() == btnCancel) {
 			this.dispose();
 		}
+		if (e.getSource() == btnSelectAll) {
+			ListModel model = list.getModel();
+			list.setSelectionInterval(0, ((DefaultListModel) model).getSize()-1);
+		}
+		if (e.getSource() == btnClear) {
+			list.clearSelection();
+		}
 		if (e.getSource() == txtLatitude || e.getSource() == txtLongitude ) {
 			try {
 				updateLocator();
@@ -522,6 +540,10 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 			boolean dispose = true;
 			MainWindow mainWindow = ((MainWindow)getParent());
 			List<String> sats = list.getSelectedValuesList();
+			if (sats.isEmpty()) {
+				MainWindow.errorDialog("Error", "You must pick at least one spacecraft to plot");
+				return;
+			}
 			mainWindow.satManager.setSelectedSats(sats);
 			
 			if (validLatLong()) {

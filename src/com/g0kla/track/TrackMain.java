@@ -130,9 +130,20 @@ public class TrackMain {
 		}
 
 		protected void handleException(String tname, Throwable thrown) {
-			MainWindow.errorDialog("SERIOUS EDT ERROR", "Error: " + thrown + "\n"
-					+ "Exception on " + tname + "\n" + thrown.getStackTrace());
+			 String stacktrace = makeShortTrace(thrown.getStackTrace());  
+			MainWindow.errorDialog("SERIOUS EDT ERROR", "Exception on " + tname + ":" + thrown +"\n" + stacktrace);
 		}
+	}
+	
+	public static String makeShortTrace(StackTraceElement[] elements) {
+		String stacktrace = "";  
+        int limit = 13;
+        for (int i=0; i< limit && i< elements.length; i++) {
+        	stacktrace =  stacktrace + elements[i] + "\n";
+        }
+        if (elements.length > limit)
+        	stacktrace = stacktrace + " ... " + (elements.length - limit) + " items not shown .... ";
+        return stacktrace;
 	}
 
 }
