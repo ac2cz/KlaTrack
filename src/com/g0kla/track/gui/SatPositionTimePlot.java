@@ -20,7 +20,8 @@ import com.g0kla.track.model.SatPositions;
 import uk.me.g4dpz.satellite.SatPos;
 
 /**
- * Uses the solarized color scheme which is Copyright (c) 2011 Ethan Schoonover and subject to the following:
+ * 
+Uses the solarized color scheme which is Copyright (c) 2011 Ethan Schoonover and subject to the following:
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
@@ -35,7 +36,20 @@ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABI
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 DEALINGS IN THE SOFTWARE.
 
- * @author chris
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ 
+ * @author g0kla@arrl.net
  *
  */
 public class SatPositionTimePlot extends JPanel {
@@ -99,19 +113,27 @@ public class SatPositionTimePlot extends JPanel {
 	 * and y running from 0 to getHeight vertically
 	 */
 	public void paintComponent(Graphics g) {
-		super.paintComponent( g ); // call superclass's paintComponent  
+		super.paintComponent( g ); // call superclass's paintComponent
 		try {
-		Graphics2D g2 = ( Graphics2D ) g; // cast g to Graphics2D  
-		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);	
-
+		Graphics2D g2 = ( Graphics2D ) g; // cast g to Graphics2D 
+		
+		RenderingHints rh = new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		RenderingHints rh2 = new RenderingHints(RenderingHints.KEY_DITHERING,RenderingHints.VALUE_DITHER_ENABLE);
+		g2.setRenderingHints(rh2);
+		RenderingHints rh3 = new RenderingHints(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
+		g2.setRenderingHints(rh3);
+		RenderingHints rh4 = new RenderingHints(RenderingHints.KEY_COLOR_RENDERING,RenderingHints.KEY_COLOR_RENDERING);
+		g2.setRenderingHints(rh4);
+		RenderingHints rh5 = new RenderingHints(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+		g2.setRenderingHints(rh5);
+		
 		g.setFont(new Font("SansSerif", Font.PLAIN, fontSize));
 
 		setBackground(background);
-//		g.drawString("Spacecraft Timeline", 5, fontSize*2);
 
-		
 		// Have 5 pix border
 		int graphHeight = getHeight() - topborder - bottomborder;
+		//if (graphHeight < 10) graphHeight = 10;
 		int graphWidth = getWidth() - sideborder*2;
 
 		// axis color
@@ -128,9 +150,10 @@ public class SatPositionTimePlot extends JPanel {
 		double[] maxy = new double[satPositions.getNumberOfSats()];
 		boolean[] wroteName = new boolean[satPositions.getNumberOfSats()];
 		int lasty[] = new int[satPositions.getNumberOfSats()];
+		
 		for (int s=0; s<satPositions.getNumberOfSamples(); s++) {
 			SatPos[] satPos = satPositions.get(s);
-			
+			if (satPos != null) // then we have some things to plot
 			for (int i=0; i < satPos.length; i++) {
 				double el = radToDeg(satPos[i].getElevation());
 				double az = radToDeg(satPos[i].getAzimuth());
@@ -145,18 +168,21 @@ public class SatPositionTimePlot extends JPanel {
 					//					g2.setColor(satColors[i%satColors.length]);
 					if (MainWindow.config.getBoolean(SettingsDialog.SHOW_SUN)) {
 						if (satPos[i].isEclipsed())
-							g2.setColor(base03);
+							if (MainWindow.config.getBoolean(SettingsDialog.DARK_THEME))
+								g2.setColor(base01);
+							else
+								g2.setColor(base03);
 						else
 							g2.setColor(sunyellow);
 					} else
 						g2.setColor(satColors[i%satColors.length]);
 					if (!MainWindow.config.getBoolean(SettingsDialog.PLOT_AZ)) {
 						if (MainWindow.config.getBoolean(SettingsDialog.OUTLINE_PLOT)) {
-							if (lasty[i] == 0) lasty[i] = graphHeight-topborder-y;
-							g2.drawLine(x, lasty[i], x, graphHeight-topborder-y);
-							lasty[i] = graphHeight-topborder-y;
+							if (lasty[i] == 0) lasty[i] = graphHeight-topborder-y-2;
+							g2.drawLine(x, lasty[i], x, graphHeight-topborder-y-2);
+							lasty[i] = graphHeight-topborder-y-2;
 						} else {
-							g2.fillRect(x, graphHeight-topborder-y, lineWidth, y);							
+							g2.fillRect(x, graphHeight-topborder-y-2, lineWidth, y);							
 						}
 					} else // plot azimuth
 						g2.fillRect(x, y-lineheight, lineWidth, lineheight);
@@ -197,26 +223,27 @@ public class SatPositionTimePlot extends JPanel {
 			g2.setColor(base01);
 			int labelHeight = fontSize*4;
 			int numVertLabels = (graphHeight-topborder-bottomborder) / labelHeight;
-			if (MainWindow.config.getBoolean(SettingsDialog.PLOT_AZ)) {
-				//int step = 360/numVertLabels;
-				int step = (int)getStep(360, numVertLabels, true);
-				for (int e=0; e<=360; e+=step) {
-					int y = getRatioPosition(0,360, e, graphHeight-topborder-bottomborder);
-					g.drawString(""+e, sideborder, y+topborder-lineheight);
+			if (numVertLabels > 0)
+				if (MainWindow.config.getBoolean(SettingsDialog.PLOT_AZ)) {
+					//int step = 360/numVertLabels;
+					int step = (int)getStep(360, numVertLabels, true);
+					for (int e=0; e<=360; e+=step) {
+						int y = getRatioPosition(0,360, e, graphHeight-topborder-bottomborder);
+						g.drawString(""+e, sideborder, y+topborder-lineheight);
+					}
+				} else {
+					//int step = 90/numVertLabels;
+					int step = (int)getStep(90, numVertLabels, true);
+					for (int e=0; e<=90; e+=step) {
+						int y = getRatioPosition(0,90, e, graphHeight-topborder-bottomborder);
+						g.drawString(""+e, sideborder, graphHeight-y-topborder);
+					}
 				}
-			} else {
-				//int step = 90/numVertLabels;
-				int step = (int)getStep(90, numVertLabels, true);
-				for (int e=0; e<=90; e+=step) {
-					int y = getRatioPosition(0,90, e, graphHeight-topborder-bottomborder);
-					g.drawString(""+e, sideborder, graphHeight-y-topborder);
-				}
-			}
 		}
 		
 		// Vertical "now" line
 		g2.setColor(base01);
-		int now = getRatioPosition(0.0, (double)satPositions.getNumberOfSamples(), (double)satPositions.nowPointer, graphWidth);
+		int now = getRatioPosition(0.0, (double)satPositions.getNumberOfSamples(), (double)satPositions.getNowPointer(), graphWidth);
 		g2.drawLine(now, topborder, now, graphHeight-bottomborder);
 		} catch (Exception e) {
 			MainWindow.errorDialog("Oops", "Crashed the rendering loop.  Guess you need to restart\n" + e);
@@ -268,9 +295,17 @@ public class SatPositionTimePlot extends JPanel {
 			String time = timefmt.print(then);
 			String dt = datefmt.print(then);
 			if (MainWindow.config.getBoolean(SettingsDialog.RELATIVE_TIME)) {
-				time = "" + (int)Math.round(delta*(i)/60.0-satPositions.getPastPeriod());
+				int val = (int)Math.round(delta*(i)/60.0-satPositions.getPastPeriod());
+				time = "" + val;
 				dt = "";
-				offset = 15;
+				if (val < -9)
+					offset = 14;
+				else if (val < 0)
+					offset = 18;
+				else if (val < 10)
+					offset = 22;
+				else
+					offset = 18;
 			} 
 			g.drawLine(timepos, graphHeight-bottomborder+2, timepos, graphHeight-bottomborder-2);
 			g.drawString(time, timepos-labelWidth/3+offset, graphHeight+3);

@@ -2,7 +2,6 @@ package com.g0kla.track.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FileDialog;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -14,7 +13,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.File;
 import java.util.List;
 
 import javax.swing.Box;
@@ -39,6 +37,23 @@ import javax.swing.border.TitledBorder;
 import com.g0kla.track.SatManager;
 import com.g0kla.track.TrackMain;
 
+/**
+ * 
+ * @author g0kla@arrl.net
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 public class SettingsDialog extends JDialog implements ActionListener, WindowListener, FocusListener, ItemListener {
 	private static final long serialVersionUID = 1L;
 
@@ -114,8 +129,8 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 		northpanel.add(northpanelB);
 		northpanelB.setLayout(new BorderLayout());
 
-		JLabel lblServerUrl = new JLabel("Server Data URL  ");
-		lblServerUrl.setToolTipText("This sets the URL we use to fetch and download server data");
+		JLabel lblServerUrl = new JLabel("Keps File URL  ");
+		lblServerUrl.setToolTipText("This sets the URL we use to fetch and download the kelperian elements");
 		lblServerUrl.setBorder(new EmptyBorder(5, 2, 5, 5) );
 		northpanelB.add(lblServerUrl, BorderLayout.WEST);
 		
@@ -181,18 +196,18 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 		leftcolumnpanel.add(leftcolumnpanel2);
 
 		leftcolumnpanel2.setLayout(new BoxLayout(leftcolumnpanel2, BoxLayout.Y_AXIS));
-		TitledBorder optTitle = title("Options");
+		TitledBorder optTitle = title("Display Options");
 		leftcolumnpanel2.setBorder(optTitle);
 		
-		cbShowSun = addCheckBoxRow(leftcolumnpanel2, "Show when Eclipsed", "Color spacecraft timeline according to sun exposure",
+		cbShowSun = addCheckBoxRow(leftcolumnpanel2, "Two tone Eclipse plot", "Color spacecraft timeline according to sun exposure",
 				MainWindow.config.getBoolean(SHOW_SUN) );
-		cbRelativeTime = addCheckBoxRow(leftcolumnpanel2, "Show time relative to now", "Show time as a delta from current time",
+		cbRelativeTime = addCheckBoxRow(leftcolumnpanel2, "Show time as an offset in mins", "Show time as a delta from current time",
 				MainWindow.config.getBoolean(RELATIVE_TIME) );
 		cbUseUtc = addCheckBoxRow(leftcolumnpanel2, "Use UTC", "Use UTC time, vs local time",
 				MainWindow.config.getBoolean(USE_UTC) );
 		cbPlotAz = addCheckBoxRow(leftcolumnpanel2, "Plot azimuth", "Plot Azimuth instead of Elevation",
 				MainWindow.config.getBoolean(PLOT_AZ) );
-		cbSolidPlot = addCheckBoxRow(leftcolumnpanel2, "Outline elevation humps", "Plot the elevation without a solid background",
+		cbSolidPlot = addCheckBoxRow(leftcolumnpanel2, "Wireframe elevation humps", "Plot the elevation without a solid background",
 					MainWindow.config.getBoolean(OUTLINE_PLOT) );
 		cbShowEl = addCheckBoxRow(leftcolumnpanel2, "Print max elevation with name", "Print the maximum eleveation for that pass under the sat name",
 				MainWindow.config.getBoolean(SHOW_EL) );
@@ -208,11 +223,17 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 		///////  print elevation or not
 		/////  show the spacecraft name or not
 		
-		leftcolumnpanel2.add(new Box.Filler(new Dimension(10,10), new Dimension(50,400), new Dimension(100,500)));
-
-		leftcolumnpanel.add(new Box.Filler(new Dimension(10,10), new Dimension(50,400), new Dimension(100,500)));
 		JLabel version = new JLabel("G0KLA Tracker Version " + TrackMain.VERSION);
 		leftcolumnpanel.add(version);
+//		JLabel credit1 = new JLabel("Includes: Java Predict by G4DPZ");
+//		leftcolumnpanel.add(credit1);
+//		JLabel credit2 = new JLabel("    and the Solarized color palette.");
+//		leftcolumnpanel.add(credit2);
+
+//		leftcolumnpanel2.add(new Box.Filler(new Dimension(10,10), new Dimension(50,400), new Dimension(100,500)));
+
+//		leftcolumnpanel.add(new Box.Filler(new Dimension(10,10), new Dimension(50,400), new Dimension(100,500)));
+
 		
 		// Add right column
 		JPanel rightcolumnpanel = new JPanel();
@@ -585,9 +606,9 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 
 			
 			if (dispose) {
-				((MainWindow)getParent()).startPositionCalc();
 				MainWindow.config.save();
 				this.dispose();
+				((MainWindow)getParent()).startPositionCalc();
 			}
 		}
 	}

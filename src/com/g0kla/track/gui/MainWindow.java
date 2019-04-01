@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -46,6 +47,23 @@ import uk.me.g4dpz.satellite.GroundStationPosition;
 import uk.me.g4dpz.satellite.TLE;
 
 
+/**
+ * 
+ * @author g0kla@arrl.net
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame implements Runnable, WindowListener, ActionListener, ChangeListener {
 	boolean startingUp = true;  // prevents events being processed in startup
@@ -231,7 +249,7 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		BufferedImage wPic = null;
 		try {
 			wPic = ImageIO.read(this.getClass().getResource(icon));
-		} catch (IOException e) {
+		} catch (Exception e) { // Should not be fatal
 			e.printStackTrace();
 		}
 		if (wPic != null) {
@@ -239,6 +257,7 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 			btn.setMargin(new Insets(0,0,0,0));
 		} else {
 			btn = new JButton(name);	
+			btn.setForeground(SatPositionTimePlot.base01);
 		}
 		btn.setToolTipText(toolTip);
 		btn.setOpaque(false);
@@ -342,25 +361,29 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		Thread.currentThread().setName("MainWindow");
 		setVisible(true);
 
+		Date lastSlice = new Date();
 		// Runs until we exit
 		while(true) {
-
 			// Sleep first to avoid race conditions at start up
 			try {
-				Thread.sleep(this.calcFreq*1000);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					if (positionCalc != null) {
-						positionCalc.fillTheBuffer();
-						satPositionTimePlot.setPositions(positionCalc.getSatPositions());
+			Date now = new Date();
+			if (now.getTime() - lastSlice.getTime() >= calcFreq*1000) {
+				lastSlice = now;
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						if (positionCalc != null) {
+							positionCalc.advanceTimeslice();
+							satPositionTimePlot.setPositions(positionCalc.getSatPositions());
+						}
+
 					}
-					
-				}
-			});
+				});
+			}
 		}
 	}
 

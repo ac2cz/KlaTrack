@@ -10,11 +10,28 @@ import javax.swing.UIManager;
 
 import com.g0kla.track.gui.MainWindow;
 
+/**
+ * 
+ * @author g0kla@arrl.net
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 public class TrackMain {
 
 	static String HELP = "Usage: TrackMain <dataDirectory>";
 	public static String VERSION_NUM = "0.03";
-	public static String VERSION = VERSION_NUM + " - 26 Mar 2019";
+	public static String VERSION = VERSION_NUM + " - 30 Mar 2019";
 	
 	public static void main(String[] args) {
 		int arg = 0;
@@ -86,11 +103,12 @@ public class TrackMain {
 					} catch (Exception e) { }; // ignore, means we have no icon
 				} catch (Exception e) {
 					System.err.println("SERIOUS ERROR - Uncaught and thrown from GUI");
+					String stacktrace = makeShortTrace(e.getStackTrace());  
 					String seriousErrorMsg = "Something is preventing the KLA Track from running: " + e.getMessage() + "\n"
 							+ "If you recently changed something\n"
 							+ "try reverting to an older version, or install the standard files.  \n"
 							+ "If that does not work then you can try deleting the properties\n"
-							+ "file in your home directory though this will delete your settings\n";
+							+ "file in your home directory though this will delete your settings\n"  + stacktrace;
 					e.printStackTrace();
 					EventQueue.invokeLater(new Runnable() {
 				        @Override
@@ -130,7 +148,7 @@ public class TrackMain {
 		}
 
 		protected void handleException(String tname, Throwable thrown) {
-			 String stacktrace = makeShortTrace(thrown.getStackTrace());  
+			String stacktrace = makeShortTrace(thrown.getStackTrace());  
 			MainWindow.errorDialog("SERIOUS EDT ERROR", "Exception on " + tname + ":" + thrown +"\n" + stacktrace);
 		}
 	}

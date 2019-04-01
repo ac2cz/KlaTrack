@@ -5,6 +5,8 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import com.g0kla.track.ProgressPanel;
+import com.g0kla.track.gui.MainWindow;
 import com.g0kla.track.gui.SatPositionTimePlot;
 
 import uk.me.g4dpz.satellite.GroundStationPosition;
@@ -14,10 +16,26 @@ import uk.me.g4dpz.satellite.SatelliteFactory;
 import uk.me.g4dpz.satellite.TLE;
 
 /**
+ * 
+ * @author g0kla@arrl.net
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ 
  * The position calculator calculates the positions for all of the sats in the keps list
  * If the keps list is updated then this is destroyed and recreated.  The positions are
  * stored in SatPositions, which can be passed to the GUI for display.
- * Hence this is the Calculator, the GUI is the view and we have data abstracted in a data model
+ * Hence this is the Calculator, the GUI is the view and we have data abstracted in SatPositions
  * 
  * @author chris
  *
@@ -71,56 +89,76 @@ public class PositionCalculator {
 		return satellitePosition;
 	}
 	
+	boolean bruteForce = false;
+	
+	/**
+	 * We have already filled the buffer.  This calculates the newest timeslice and purges 
+	 * the oldest and increments now.  This repeats until now is equal to the actual time
+	 */
+	public void advanceTimeslice() {
+		if (bruteForce)
+			fillTheBuffer();
+		else {
+			DateTime timeNow = new DateTime(DateTimeZone.UTC); // this is the actual time now.  Advance the now point to equal this
+			while (satPositions.getNow().isBeforeNow()) {
+				satPositions.incNow();
+				int newTimeSlice = forecastPeriod*60;
+				DateTime newTime = satPositions.getNow().plusSeconds(newTimeSlice);
+				addSlice(newTime, newTimeSlice);
+			}
+		}
+	}
+	
 	/**
 	 * Initial start up.  For every position in the buffer calculate the sat positions.
 	 * After this we just need to calculate the latest position and move the nowPointer.
 	 * 
 	 */
-	public void fillTheBuffer() {
+	private void fillTheBuffer() {
+		ProgressPanel initProgress = null;
+		initProgress = new ProgressPanel(MainWindow.frame, "Calculating initial positions ..", false);
+		initProgress.setVisible(true);
+		
 		DateTime timeNow = new DateTime(DateTimeZone.UTC);
 		satPositions.setNow(timeNow);
 		// Offsets are all in seconds, with s as the offset
 		
 		// Calcualate from the start of the oldPeriod to now
 		int oldTimeSlices = oldPeriod*60/calcFreq;
-//		System.out.println("Old Slices: " + oldTimeSlices);
+		int newTimeSlices = forecastPeriod*60/calcFreq;
+		//System.out.println("Old Slices: " + oldTimeSlices);
 		for (int s=0; s<oldTimeSlices; s++) {
 			int secsOffset = oldPeriod*60-s*calcFreq;
 			DateTime newTime = timeNow.minusSeconds(secsOffset);
-//			System.out.print("Calc OLD slice: " + s + " at time " + newTime);
-			SatPos[] satPos = new SatPos[tleList.size()];
-			for(int i=0; i < tleList.size(); i++) {
-				try {
-					satPos[i] = calcualteCurrentPosition(newTime, tleList.get(i), groundStation);
-//					System.out.println("SAT: " + i + " EL: " + SatPositionTimePlot.radToDeg(satPos[i].getElevation()));
-				} catch (PositionCalcException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			satPositions.add(s, satPos);
+			addSlice(newTime, secsOffset);
+			initProgress.updateProgress((int) (100*(s/(double)(oldTimeSlices+newTimeSlices))));
 		}
 
 		// Calculate from now to end of the forecastPeriod
-		int newTimeSlices = forecastPeriod*60/calcFreq;
-//		System.out.println("New Slices: " + newTimeSlices);
+		
+		//System.out.println("New Slices: " + newTimeSlices);
 		for (int s=0; s<newTimeSlices; s++) {
 			int secsOffset = s*calcFreq;
 			DateTime newTime = timeNow.plusSeconds(secsOffset);
-//			System.out.print("Calc NEW slice: " + (s+oldTimeSlices) + " at time " + newTime);
-			SatPos[] satPos = new SatPos[tleList.size()];
-			for(int i=0; i < tleList.size(); i++) {
-				try {
-					satPos[i] = calcualteCurrentPosition(newTime, tleList.get(i), groundStation);
-//					System.out.println("SAT: " + i + " EL: " + SatPositionTimePlot.radToDeg(satPos[i].getElevation()));
-				} catch (PositionCalcException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			satPositions.add(s+oldTimeSlices, satPos);
+			addSlice(newTime, secsOffset);
+			initProgress.updateProgress((int)(100*(s+oldTimeSlices)/(double)(oldTimeSlices+newTimeSlices)));
 		}
+		initProgress.updateProgress(100);
 	}
 	
+	private void addSlice(DateTime newTime, int secsOffset) {
+		SatPos[] satPos = new SatPos[tleList.size()];
+		for(int i=0; i < tleList.size(); i++) {
+			try {
+				satPos[i] = calcualteCurrentPosition(newTime, tleList.get(i), groundStation);
+//				System.out.println("SAT: " + i + " EL: " + SatPositionTimePlot.radToDeg(satPos[i].getElevation()));
+			} catch (PositionCalcException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		satPositions.add(satPos);
+
+	}
 	
 }

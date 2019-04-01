@@ -8,6 +8,23 @@ import java.awt.event.ActionListener;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
+/**
+ * 
+ * @author g0kla@arrl.net
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 @SuppressWarnings("serial")
 public class ProgressPanel extends JDialog implements ActionListener {
 
@@ -29,7 +46,7 @@ public class ProgressPanel extends JDialog implements ActionListener {
 			x = (int) ((dimension.getWidth() - this.getWidth()) / 2);
 			y = (int) ((dimension.getHeight() - this.getHeight()) / 2);
 		}
-		setBounds(100, 100, message.length()*9, 10);
+		setBounds(100, 100, message.length()*12, 10);
 	
 		    this.setLocation(x, y);
 	}
