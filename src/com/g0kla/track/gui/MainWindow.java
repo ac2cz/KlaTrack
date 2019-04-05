@@ -231,7 +231,9 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		try {
 		startPositionCalc();
 		} catch (Exception e) {
-			errorDialog("ERROR", "Could not start the calculations.  Make sure the TLEs were downloaded\n" + e);
+			errorDialog("ERROR", "Could not start the calculations.  Make sure the TLEs were downloaded\n"
+					+ "Or manually copy nasabare.txt into the directory:\n"
+					+ MainWindow.config.get(MainWindow.DATA_DIR));
 			return;
 		}
 		satPositionTimePlot = new SatPositionTimePlot(positionCalc.getSatPositions());

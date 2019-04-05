@@ -75,6 +75,7 @@ public class SatManager {
 	
 	public List<String> getSatNames() {
 		List<String> names = new ArrayList<String>();
+		if (TLEs == null) return names;
 		for (TLE tle : TLEs)
 			names.add(tle.getName());
 		Collections.sort(names);
@@ -181,10 +182,10 @@ public class SatManager {
 			return;
 
 		} catch (MalformedURLException e) {
-			MainWindow.errorDialog("ERROR","Invalid location for Keps file: " + file  + "\n" + e);
+			MainWindow.errorDialog("ERROR","Invalid location for Keps file: " + urlString  + "\n" + e);
 			try { remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
 		} catch (IOException e) {
-			MainWindow.errorDialog("ERROR","Could not write Keps file: " + file + "\n" + e);
+			MainWindow.errorDialog("ERROR","Could not download the Keps file from : " + urlString + "\n and/or write it to " + file + "\n" + e);
 			try { remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
 		} catch (IndexOutOfBoundsException e) {
 			MainWindow.errorDialog("ERROR","Keps file is corrupt: " + file  + "\n" + e);
