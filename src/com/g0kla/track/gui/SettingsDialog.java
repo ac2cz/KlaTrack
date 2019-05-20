@@ -77,6 +77,8 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 	public static final String SHOW_VERT_AXIS = "show_vert_axis";
 	public static final String OUTLINE_PLOT = "outline_plot";
 	public static final String DARK_THEME = "dark_theme";
+	public static final String SHOW_30_60 = "show_30_60_deg_lines";
+	public static final String HIDE_BELOW_DEG = "hide_below_deg";
 
 	public static final String DEFAULT_LATITUDE = "0";//"45.4920";
 	public static final String DEFAULT_LONGITUDE = "0"; //"-73.5042";
@@ -84,8 +86,8 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 	public static final String DEFAULT_LOCATOR = "NONE";
 
 	JButton btnSave, btnCancel, btnBrowse, btnClear, btnSelectAll;
-	JTextField txtServerUrl, txtLatitude, txtLongitude, txtMaidenhead, txtAltitude, txtFont;
-	JCheckBox cbShowSun, cbUseUtc, cbRelativeTime, cbPlotAz, cbSolidPlot, cbShowEl, cbShowVertAxis, cbDarkTheme;
+	JTextField txtServerUrl, txtLatitude, txtLongitude, txtMaidenhead, txtAltitude, txtFont, txtHideBelowDeg;
+	JCheckBox cbShowSun, cbUseUtc, cbRelativeTime, cbPlotAz, cbSolidPlot, cbShowEl, cbShowVertAxis, cbShow_30_60, cbDarkTheme;
 	JList list;
 		
 	/**
@@ -213,11 +215,16 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 				MainWindow.config.getBoolean(SHOW_EL) );
 		cbShowVertAxis = addCheckBoxRow(leftcolumnpanel2, "Show vertical axis labels", "Display the vertical axis on left side of display",
 				MainWindow.config.getBoolean(SHOW_VERT_AXIS) );
+		cbShow_30_60 = addCheckBoxRow(leftcolumnpanel2, "Show 30 and 60 deg lines", "Show horizontal lines for 30 and 60 degree elevation",
+				MainWindow.config.getBoolean(SHOW_30_60) );
 		cbDarkTheme = addCheckBoxRow(leftcolumnpanel2, "Dark Theme", "Color the display with a dark background",
 				MainWindow.config.getBoolean(DARK_THEME) );
+//		txtHideBelowDeg = addSettingsRow(leftcolumnpanel2, 10, "Hide Passes below (deg)", 
+//				"Hide any passes that are below this many degrees", 
+//				MainWindow.config.get(HIDE_BELOW_DEG));
 		txtFont = addSettingsRow(leftcolumnpanel2, 10, "Font Size", 
 				"Change the Font size to make things easier to read", 
-				MainWindow.config.get(SatPositionTimePlot.GRAPH_AXIS_FONT_SIZE)); // South is negative
+				MainWindow.config.get(SatPositionTimePlot.GRAPH_AXIS_FONT_SIZE));
 
 		////////  show vertical scale
 		///////  print elevation or not
@@ -591,13 +598,26 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 					!mainWindow.config.get(SatPositionTimePlot.GRAPH_AXIS_FONT_SIZE).equalsIgnoreCase(txtFont.getText())) {
 				mainWindow.config.set(SatPositionTimePlot.GRAPH_AXIS_FONT_SIZE, txtFont.getText());
 				MainWindow.infoDialog("New Font Size", "Restart to see the effect of the new font");
-			}			
+			}
+//			if (mainWindow.config.get(HIDE_BELOW_DEG) == null || 
+//					!mainWindow.config.get(HIDE_BELOW_DEG).equalsIgnoreCase(txtFont.getText())) {
+//				try {
+//					int minDeg = Integer.parseInt(txtHideBelowDeg.getText());
+//					if (minDeg < 0 || minDeg > 90) throw new NumberFormatException();
+//					mainWindow.config.set(HIDE_BELOW_DEG, minDeg);
+//				} catch (NumberFormatException e1) {
+//					MainWindow.infoDialog("Invalid Minimum Elevation", "Minimum Elevation should be a valid integer from 0-90");
+//					dispose = false;
+//				}
+//			}			
+
 			mainWindow.config.set(SHOW_SUN, cbShowSun.isSelected());
 			mainWindow.config.set(USE_UTC, cbUseUtc.isSelected());
 			mainWindow.config.set(RELATIVE_TIME, cbRelativeTime.isSelected());
 			mainWindow.config.set(PLOT_AZ, cbPlotAz.isSelected());
 			mainWindow.config.set(OUTLINE_PLOT, cbSolidPlot.isSelected());
 			mainWindow.config.set(SHOW_EL, cbShowEl.isSelected());
+			mainWindow.config.set(SHOW_30_60, cbShow_30_60.isSelected());
 			mainWindow.config.set(SHOW_VERT_AXIS, cbShowVertAxis.isSelected());
 			if (mainWindow.config.getBoolean(DARK_THEME) != cbDarkTheme.isSelected()) {
 				mainWindow.config.set(DARK_THEME, cbDarkTheme.isSelected());
