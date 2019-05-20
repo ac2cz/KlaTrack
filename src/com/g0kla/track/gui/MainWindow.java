@@ -139,21 +139,22 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 
 		bottomPanel.add(new Box.Filler(new Dimension(10,0), new Dimension(10000,0), new Dimension(10000,0)));
 
-		JLabel lblPast = new JLabel("From past (hrs)");
+		JLabel lblPast = new JLabel("From past (mins)");
 		lblPast.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, fontSize));
 		lblPast.setForeground(SatPositionTimePlot.base01);
 		bottomPanel.add(lblPast);
 		lblPast.setBorder(new EmptyBorder(2, 10, 2, 10) ); // top left bottom right
 		List<Integer> pastPeriodList = new ArrayList<Integer>();
 		pastPeriodList.add(0);
-		pastPeriodList.add(1);
-		pastPeriodList.add(2);
-		pastPeriodList.add(3);
-		pastPeriodList.add(4);
-		pastPeriodList.add(5);
-		pastPeriodList.add(6);
-		pastPeriodList.add(12);
-		pastPeriodList.add(24);
+		pastPeriodList.add(10);
+		pastPeriodList.add(20);
+		pastPeriodList.add(30);
+		pastPeriodList.add(60);
+		pastPeriodList.add(120);
+		pastPeriodList.add(240);
+		pastPeriodList.add(6*60);
+		pastPeriodList.add(12*60);
+		pastPeriodList.add(24*60);
 		SpinnerListModel pastModel = new SpinnerListModel(pastPeriodList);
 		spinPastPeriod = new JSpinner(pastModel);
 		spinPastPeriod.getEditor().getComponent(0).setBackground(backgroundDepth);
@@ -173,7 +174,7 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		bottomPanel.add(spinPastPeriod);
 		spinPastPeriod.addChangeListener(this);
 		pastPeriod = config.getInt(PAST);
-		spinPastPeriod.setValue(pastPeriod/60);
+		spinPastPeriod.setValue(pastPeriod);
 		
 		JLabel lblForecast = new JLabel("to future (hrs)");
 		lblForecast.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, fontSize));
@@ -399,7 +400,7 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 				config.save();
 			}
 			if (e.getSource() == spinPastPeriod) {
-				pastPeriod = (int) spinPastPeriod.getValue() * 60;
+				pastPeriod = (int) spinPastPeriod.getValue();
 				startPositionCalc();
 				config.set(PAST, pastPeriod);
 				config.save();
