@@ -136,16 +136,50 @@ public class SatPositionTimePlot extends JPanel {
 		//if (graphHeight < 10) graphHeight = 10;
 		int graphWidth = getWidth() - sideborder*2;
 
-		// axis color
-		g2.setColor(base01);
-		plotTimeAxis(g2, graphHeight, graphWidth);
-		if (MainWindow.config.getBoolean(SettingsDialog.SHOW_30_60))
-			plotHorLines(g2, graphHeight, graphWidth);
-		
 		int lineWidth = 1+(int) (graphWidth/(double)satPositions.getNumberOfSamples());
 		if (lineWidth < 1) lineWidth = 1;
 		int lineheight = 5+(int) (graphHeight/(double)180);
 		if (lineheight < 1) lineheight = 1;
+		
+		// axis color
+		g2.setColor(base01);
+//		plotTimeAxisByLabel(g2, graphHeight, graphWidth);
+		plotTimeAxisByStep(g2, graphHeight, graphWidth);
+		
+		if (MainWindow.config.getBoolean(SettingsDialog.SHOW_VERT_AXIS)) {
+			g2.setColor(base01);
+			int labelHeight = fontSize*4;
+			int numVertLabels = (graphHeight-topborder-bottomborder) / labelHeight;
+			if (numVertLabels > 0)
+				if (MainWindow.config.getBoolean(SettingsDialog.PLOT_AZ)) {
+					//int step = 360/numVertLabels;
+					int step = (int)getStep(360, numVertLabels, true);
+					for (int e=0; e<=360; e+=step) {
+						int y = getRatioPosition(0,360, e, graphHeight-topborder-bottomborder);
+						g2.drawString(""+e, sideborder, y+topborder-lineheight+fontSize/2);
+						if (e != 360 && e != 0)
+						if (MainWindow.config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES)) {
+							g2.drawLine(0, y+topborder-lineheight, graphWidth+sideborder*2, y+topborder-lineheight);
+						}
+					}
+				} else {
+					//int step = 90/numVertLabels;
+					int step = (int)getStep(90, numVertLabels, true);
+					for (int e=0; e<=90; e+=step) {
+						int y = getRatioPosition(0,90, e, graphHeight-topborder-bottomborder);
+						g2.drawString(""+e, sideborder, graphHeight-y-topborder+fontSize/2);
+						if (e != 0 && e != 90)
+						if (MainWindow.config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES)) {
+							g2.drawLine(0, graphHeight-y-topborder, graphWidth+sideborder*2, graphHeight-y-topborder);
+						}
+
+					}
+				}
+		}
+		
+		if (MainWindow.config.getBoolean(SettingsDialog.SHOW_30_60))
+			plotHor_30_60_Lines(g2, graphHeight, graphWidth);
+		
 
 		// For each sat splot the positions, default is elevation
 		boolean plotElevation = true;
@@ -221,27 +255,7 @@ public class SatPositionTimePlot extends JPanel {
 			}
 		}
 		
-		if (MainWindow.config.getBoolean(SettingsDialog.SHOW_VERT_AXIS)) {
-			g2.setColor(base01);
-			int labelHeight = fontSize*4;
-			int numVertLabels = (graphHeight-topborder-bottomborder) / labelHeight;
-			if (numVertLabels > 0)
-				if (MainWindow.config.getBoolean(SettingsDialog.PLOT_AZ)) {
-					//int step = 360/numVertLabels;
-					int step = (int)getStep(360, numVertLabels, true);
-					for (int e=0; e<=360; e+=step) {
-						int y = getRatioPosition(0,360, e, graphHeight-topborder-bottomborder+fontSize/2);
-						g2.drawString(""+e, sideborder, y+topborder-lineheight);
-					}
-				} else {
-					//int step = 90/numVertLabels;
-					int step = (int)getStep(90, numVertLabels, true);
-					for (int e=0; e<=90; e+=step) {
-						int y = getRatioPosition(0,90, e, graphHeight-topborder-bottomborder);
-						g2.drawString(""+e, sideborder, graphHeight-y-topborder+fontSize/2);
-					}
-				}
-		}
+
 		
 		// Vertical "now" line
 		g2.setColor(base01);
@@ -263,12 +277,25 @@ public class SatPositionTimePlot extends JPanel {
 		else if (range/ticks <= 15) step = 15.00d;
 		else if (range/ticks <= 30) step = 30.00d;
 		else if (range/ticks <= 45) step = 45.00d;
+		else if (range/ticks <= 60) step = 60.00d;
 		else if (range/ticks <= 90) step = 90.00d;
+		else if (range/ticks <= 120) step = 120.00d;
 		else if (range/ticks <= 180) step = 180.00d;
+		else if (range/ticks <= 300) step = 300.00d;
+		else if (range/ticks <= 600) step = 600.00d;
+		else if (range/ticks <= 900) step = 900.00d;
+		else if (range/ticks <= 1200) step = 1200.00d;
+		else if (range/ticks <= 1800) step = 1800.00d;
+		else if (range/ticks <= 3600) step = 3600.00d; // 1hr
+		else if (range/ticks <= 5400) step = 5400.00d; // 1.5hr
+		else if (range/ticks <= 7200) step = 7200.00d; // 2hr
+		else if (range/ticks <= 10800) step = 10800.00d; // 3hr
+		else if (range/ticks <= 14400) step = 14400.00d; // 4hr
+		else step = 21600.00d; // 6hr
 		return step;
 	}
 	
-	private void plotHorLines(Graphics2D g, int graphHeight, int graphWidth) {
+	private void plotHor_30_60_Lines(Graphics2D g, int graphHeight, int graphWidth) {
 		if (MainWindow.config.getBoolean(SettingsDialog.PLOT_AZ)) return;
 		int y = getRatioPosition(0,90, 30, graphHeight-topborder-bottomborder);
 		if (MainWindow.config.getBoolean(SettingsDialog.DARK_THEME))
@@ -280,18 +307,83 @@ public class SatPositionTimePlot extends JPanel {
 		g.drawLine(0, graphHeight-y-topborder, graphWidth+sideborder*2, graphHeight-y-topborder);
 	}
 	
-	private void plotTimeAxis(Graphics g, int graphHeight, int graphWidth) {
+	DateTimeFormatter timefmt = DateTimeFormat.forPattern("HH:mm:ss");
+	DateTimeFormatter datefmt = DateTimeFormat.forPattern("d MMM YY");
+	
+	/**
+	 * Plot the labels on the time axis.  Calculate the number of labels that will fit and then work out a round number for the
+	 * time steps in between the labels.  Calculate a set of time labels.  Then work out where on the time axis each label
+	 * should be plotted
+	 * 
+	 * @param g
+	 * @param graphHeight
+	 * @param graphWidth
+	 */
+	private void plotTimeAxisByStep(Graphics g, int graphHeight, int graphWidth) {
+		// Draw baseline with enough space for text under it
+		g.drawLine(0, graphHeight-bottomborder, graphWidth+sideborder*2, graphHeight-bottomborder);
+		int calcFreq = satPositions.getCalcFreq();
+		int labelWidth = fontSize * 6;
+		int numberOfLabels = (int) (graphWidth / (double)(labelWidth));
+		
+		int delta= (int) ((satPositions.getNumberOfSamples()*calcFreq)); 
+		delta = (int)getStep(delta, numberOfLabels, true); // time in seconds per label
+		
+		DateTime now = satPositions.getNow();
+		
+		for (int i=0; i<numberOfLabels; i++) {
+			
+			double timeSlice = (double)i*(delta/calcFreq);
+			//if (timeSlice > satPositions.nowPointer)
+			//	timeSlice = (double)satPositions.nowPointer+i*(delta/calcFreq);
+			int timepos = getRatioPosition(0.0, (double)satPositions.getNumberOfSamples(), timeSlice, graphWidth);
+			DateTime then = now.plusSeconds(delta*i-satPositions.getPastPeriod()*60);
+
+			if (!MainWindow.config.getBoolean(SettingsDialog.USE_UTC)) {
+				then = then.withZone(DateTimeZone.getDefault());
+			}
+			
+			int offset = 0;
+			String time = timefmt.print(then);
+			String dt = datefmt.print(then);
+			if (MainWindow.config.getBoolean(SettingsDialog.RELATIVE_TIME)) {
+				int val = (int)Math.round(delta*(i)/60.0-satPositions.getPastPeriod());
+				time = "" + val;
+				dt = "";
+				if (val < -9)
+					offset = 14;
+				else if (val < 0)
+					offset = 18;
+				else if (val < 10)
+					offset = 22;
+				else
+					offset = 18;
+			} 
+			g.drawLine(timepos, graphHeight-bottomborder+2, timepos, graphHeight-bottomborder-2);
+			g.drawString(time, timepos-labelWidth/3+offset, graphHeight+3);
+			g.drawString(dt, timepos-labelWidth/3+offset, graphHeight+3+fontSize);
+		}
+	}
+	
+	/**
+	 * Plot the labels on the time axis.  Calculate the number of labels that will fit, then plot the labels with the time that
+	 * corresponds to that label.
+	 * @param g
+	 * @param graphHeight
+	 * @param graphWidth
+	 */
+	private void plotTimeAxisByLabel(Graphics g, int graphHeight, int graphWidth) {
 		// Draw baseline with enough space for text under it
 		g.drawLine(0, graphHeight-bottomborder, graphWidth+sideborder*2, graphHeight-bottomborder);
 
-		DateTime now = satPositions.getNow();
 		
-		DateTimeFormatter timefmt = DateTimeFormat.forPattern("HH:mm:ss");
-		DateTimeFormatter datefmt = DateTimeFormat.forPattern("d MMM YY");
+			
 		int calcFreq = satPositions.getCalcFreq();
 		int labelWidth = fontSize * 6;
 		int numberOfLabels = (int) (graphWidth / (double)(labelWidth));
 		int delta= (int) ((satPositions.getNumberOfSamples()*calcFreq)/(double)numberOfLabels); // time in seconds per label
+		
+		DateTime now = satPositions.getNow();
 		
 		for (int i=0; i<numberOfLabels; i++) {
 			

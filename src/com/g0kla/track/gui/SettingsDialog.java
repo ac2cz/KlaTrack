@@ -78,6 +78,7 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 	public static final String OUTLINE_PLOT = "outline_plot";
 	public static final String DARK_THEME = "dark_theme";
 	public static final String SHOW_30_60 = "show_30_60_deg_lines";
+	public static final String SHOW_ELEVATION_LINES = "show_elevation_lines";
 	public static final String HIDE_BELOW_DEG = "hide_below_deg";
 
 	public static final String DEFAULT_LATITUDE = "0";//"45.4920";
@@ -87,7 +88,7 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 
 	JButton btnSave, btnCancel, btnBrowse, btnClear, btnSelectAll;
 	JTextField txtServerUrl, txtLatitude, txtLongitude, txtMaidenhead, txtAltitude, txtFont, txtHideBelowDeg;
-	JCheckBox cbShowSun, cbUseUtc, cbRelativeTime, cbPlotAz, cbSolidPlot, cbShowEl, cbShowVertAxis, cbShow_30_60, cbDarkTheme;
+	JCheckBox cbShowSun, cbUseUtc, cbRelativeTime, cbPlotAz, cbSolidPlot, cbShowEl, cbShowVertAxis, cbShow_30_60, cbShowElevationLines, cbDarkTheme;
 	JList list;
 		
 	/**
@@ -217,6 +218,8 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 				MainWindow.config.getBoolean(SHOW_VERT_AXIS) );
 		cbShow_30_60 = addCheckBoxRow(leftcolumnpanel2, "Show 30 and 60 deg lines", "Show horizontal lines for 30 and 60 degree elevation",
 				MainWindow.config.getBoolean(SHOW_30_60) );
+		cbShowElevationLines = addCheckBoxRow(leftcolumnpanel2, "Plot Horizontal lines", "Show horizontal lines for elevation or azimuth",
+				MainWindow.config.getBoolean(SHOW_ELEVATION_LINES) );
 		cbDarkTheme = addCheckBoxRow(leftcolumnpanel2, "Dark Theme", "Color the display with a dark background",
 				MainWindow.config.getBoolean(DARK_THEME) );
 //		txtHideBelowDeg = addSettingsRow(leftcolumnpanel2, 10, "Hide Passes below (deg)", 
@@ -618,6 +621,7 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 			mainWindow.config.set(OUTLINE_PLOT, cbSolidPlot.isSelected());
 			mainWindow.config.set(SHOW_EL, cbShowEl.isSelected());
 			mainWindow.config.set(SHOW_30_60, cbShow_30_60.isSelected());
+			mainWindow.config.set(SHOW_ELEVATION_LINES, cbShowElevationLines.isSelected());
 			mainWindow.config.set(SHOW_VERT_AXIS, cbShowVertAxis.isSelected());
 			if (mainWindow.config.getBoolean(DARK_THEME) != cbDarkTheme.isSelected()) {
 				mainWindow.config.set(DARK_THEME, cbDarkTheme.isSelected());

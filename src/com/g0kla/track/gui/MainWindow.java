@@ -158,7 +158,7 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		SpinnerListModel pastModel = new SpinnerListModel(pastPeriodList);
 		spinPastPeriod = new JSpinner(pastModel);
 		spinPastPeriod.getEditor().getComponent(0).setBackground(backgroundDepth);
-		((JTextField) spinPastPeriod.getEditor().getComponent(0)).setColumns(2);
+		((JTextField) spinPastPeriod.getEditor().getComponent(0)).setColumns(3);
 		spinPastPeriod.setBorder(BorderFactory.createEmptyBorder());
 //		 int n = spinPastPeriod.getComponentCount();
 //		for (int i=0; i<n; i++)
