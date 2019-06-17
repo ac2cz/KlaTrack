@@ -72,7 +72,7 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 	int fontSize;
 	
 	// satPositions;
-	JButton butSettings;
+	JButton butSettings, butEclipse, butOffsetMins, butUTC, butOutlinePlot, but30_60, butPlotAz;
 	JSpinner spinTimeSlice, spinForecastPeriod, spinPastPeriod;
 	SatPositionTimePlot satPositionTimePlot;
 	
@@ -137,6 +137,37 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		butSettings = createIconButton("/setup_icon2.png","Setup","Setup and preferences");
 		bottomPanel.add(butSettings);
 
+		bottomPanel.add(new Box.Filler(new Dimension(10,0), new Dimension(100,0), new Dimension(100,0)));
+		JLabel bar = new JLabel("|");
+		bar.setForeground(SatPositionTimePlot.base01);
+		bottomPanel.add(bar);
+		bottomPanel.add(new Box.Filler(new Dimension(10,0), new Dimension(50,0), new Dimension(50,0)));
+
+		butUTC = createButton("Local","Toggle between UTC and local time");
+		bottomPanel.add(butUTC);
+		if (config.getBoolean((SettingsDialog.USE_UTC)))
+			butUTC.setText("UTC");
+
+		butEclipse = createIconButton("/sun_icon2.png","Eclipse","Toggle Normal vs Sun/Eclipse view");
+		bottomPanel.add(butEclipse);
+
+		butOffsetMins = createButton("Time","Toggle units between minutes and time");
+		bottomPanel.add(butOffsetMins);
+		if (config.getBoolean((SettingsDialog.RELATIVE_TIME)))
+				butOffsetMins.setText("Mins");
+
+		butOutlinePlot = createIconButton("/outline_icon2.png","Outline","Toggle Outline vs Solid plot");
+		bottomPanel.add(butOutlinePlot);
+
+		but30_60 = createButton("30-60","Show or hide lines for 30 and 60 degrees elevation");
+		bottomPanel.add(but30_60);
+
+		butPlotAz = createButton("EL","Toggle between plotting elevation and Azimuth");
+		bottomPanel.add(butPlotAz);
+		if (config.getBoolean((SettingsDialog.PLOT_AZ)))
+			butPlotAz.setText("AZ");
+
+		
 		bottomPanel.add(new Box.Filler(new Dimension(10,0), new Dimension(10000,0), new Dimension(10000,0)));
 
 		JLabel lblPast = new JLabel("From past (mins)");
@@ -151,7 +182,8 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		pastPeriodList.add(30);
 		pastPeriodList.add(60);
 		pastPeriodList.add(120);
-		pastPeriodList.add(240);
+		pastPeriodList.add(180);
+		pastPeriodList.add(4*60);
 		pastPeriodList.add(6*60);
 		pastPeriodList.add(12*60);
 		pastPeriodList.add(24*60);
@@ -246,6 +278,21 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 	
 		startingUp = false;
 	}
+
+	public JButton createButton(String name, String toolTip) {
+		JButton btn;
+		
+		btn = new JButton(name);	
+		btn.setForeground(SatPositionTimePlot.base01);
+		btn.setMargin(new Insets(0,10,0,10)); //top left bottom right
+		btn.setToolTipText(toolTip);
+		btn.setOpaque(false);
+		btn.setContentAreaFilled(false);
+		btn.setBorderPainted(false);
+		btn.addActionListener(this);
+		return btn;
+	}
+
 	
 	public JButton createIconButton(String icon, String name, String toolTip) {
 		JButton btn;
@@ -253,11 +300,11 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		try {
 			wPic = ImageIO.read(this.getClass().getResource(icon));
 		} catch (Exception e) { // Should not be fatal
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		if (wPic != null) {
 			btn = new JButton(new ImageIcon(wPic));
-			btn.setMargin(new Insets(0,0,0,0));
+			btn.setMargin(new Insets(0,10,0,10));
 		} else {
 			btn = new JButton(name);	
 			btn.setForeground(SatPositionTimePlot.base01);
@@ -352,6 +399,48 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		if (e.getSource() == butSettings) {
 			SettingsDialog f = new SettingsDialog(this, true);
 			f.setVisible(true);
+		}
+		if (e.getSource() == butEclipse) {
+			config.set(SettingsDialog.SHOW_SUN, !config.getBoolean(SettingsDialog.SHOW_SUN)); 
+			MainWindow.config.save();
+			startPositionCalc();
+		}
+		if (e.getSource() == butOffsetMins) {
+			config.set(SettingsDialog.RELATIVE_TIME, !config.getBoolean(SettingsDialog.RELATIVE_TIME)); 
+			MainWindow.config.save();
+			if (config.getBoolean((SettingsDialog.RELATIVE_TIME)))
+				butOffsetMins.setText("Mins");
+			else
+				butOffsetMins.setText("Time");				
+			startPositionCalc();
+		}
+		if (e.getSource() == butUTC) {
+			config.set(SettingsDialog.USE_UTC, !config.getBoolean(SettingsDialog.USE_UTC)); 
+			MainWindow.config.save();
+			if (config.getBoolean((SettingsDialog.USE_UTC)))
+				butUTC.setText("UTC");
+			else
+				butUTC.setText("Local");				
+			startPositionCalc();
+		}
+		if (e.getSource() == butOutlinePlot) {
+			config.set(SettingsDialog.OUTLINE_PLOT, !config.getBoolean(SettingsDialog.OUTLINE_PLOT)); 
+			MainWindow.config.save();
+			startPositionCalc();
+		}
+		if (e.getSource() == but30_60) {
+			config.set(SettingsDialog.SHOW_30_60, !config.getBoolean(SettingsDialog.SHOW_30_60)); 
+			MainWindow.config.save();
+			startPositionCalc();
+		}
+		if (e.getSource() == butPlotAz) {
+			config.set(SettingsDialog.PLOT_AZ, !config.getBoolean(SettingsDialog.PLOT_AZ)); 
+			MainWindow.config.save();
+			if (config.getBoolean((SettingsDialog.PLOT_AZ)))
+				butPlotAz.setText("AZ");
+			else
+				butPlotAz.setText("EL");				
+			startPositionCalc();
 		}
 		
 	}

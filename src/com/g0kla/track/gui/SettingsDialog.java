@@ -202,22 +202,22 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 		TitledBorder optTitle = title("Display Options");
 		leftcolumnpanel2.setBorder(optTitle);
 		
-		cbShowSun = addCheckBoxRow(leftcolumnpanel2, "Two tone Eclipse plot", "Color spacecraft timeline according to sun exposure",
-				MainWindow.config.getBoolean(SHOW_SUN) );
-		cbRelativeTime = addCheckBoxRow(leftcolumnpanel2, "Show time as an offset in mins", "Show time as a delta from current time",
-				MainWindow.config.getBoolean(RELATIVE_TIME) );
-		cbUseUtc = addCheckBoxRow(leftcolumnpanel2, "Use UTC", "Use UTC time, vs local time",
-				MainWindow.config.getBoolean(USE_UTC) );
-		cbPlotAz = addCheckBoxRow(leftcolumnpanel2, "Plot azimuth", "Plot Azimuth instead of Elevation",
-				MainWindow.config.getBoolean(PLOT_AZ) );
-		cbSolidPlot = addCheckBoxRow(leftcolumnpanel2, "Wireframe elevation humps", "Plot the elevation without a solid background",
-					MainWindow.config.getBoolean(OUTLINE_PLOT) );
+//		cbShowSun = addCheckBoxRow(leftcolumnpanel2, "Two tone Eclipse plot", "Color spacecraft timeline according to sun exposure",
+//				MainWindow.config.getBoolean(SHOW_SUN) );
+//		cbRelativeTime = addCheckBoxRow(leftcolumnpanel2, "Show time as an offset in mins", "Show time as a delta from current time",
+//				MainWindow.config.getBoolean(RELATIVE_TIME) );
+//		cbUseUtc = addCheckBoxRow(leftcolumnpanel2, "Use UTC", "Use UTC time, vs local time",
+//				MainWindow.config.getBoolean(USE_UTC) );
+//		cbPlotAz = addCheckBoxRow(leftcolumnpanel2, "Plot azimuth", "Plot Azimuth instead of Elevation",
+//				MainWindow.config.getBoolean(PLOT_AZ) );
+//		cbSolidPlot = addCheckBoxRow(leftcolumnpanel2, "Wireframe elevation humps", "Plot the elevation without a solid background",
+//					MainWindow.config.getBoolean(OUTLINE_PLOT) );
 		cbShowEl = addCheckBoxRow(leftcolumnpanel2, "Print max elevation with name", "Print the maximum eleveation for that pass under the sat name",
 				MainWindow.config.getBoolean(SHOW_EL) );
 		cbShowVertAxis = addCheckBoxRow(leftcolumnpanel2, "Show vertical axis labels", "Display the vertical axis on left side of display",
 				MainWindow.config.getBoolean(SHOW_VERT_AXIS) );
-		cbShow_30_60 = addCheckBoxRow(leftcolumnpanel2, "Show 30 and 60 deg lines", "Show horizontal lines for 30 and 60 degree elevation",
-				MainWindow.config.getBoolean(SHOW_30_60) );
+//		cbShow_30_60 = addCheckBoxRow(leftcolumnpanel2, "Show 30 and 60 deg lines", "Show horizontal lines for 30 and 60 degree elevation",
+//				MainWindow.config.getBoolean(SHOW_30_60) );
 		cbShowElevationLines = addCheckBoxRow(leftcolumnpanel2, "Plot Horizontal lines", "Show horizontal lines for elevation or azimuth",
 				MainWindow.config.getBoolean(SHOW_ELEVATION_LINES) );
 		cbDarkTheme = addCheckBoxRow(leftcolumnpanel2, "Dark Theme", "Color the display with a dark background",
@@ -614,13 +614,13 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 //				}
 //			}			
 
-			mainWindow.config.set(SHOW_SUN, cbShowSun.isSelected());
-			mainWindow.config.set(USE_UTC, cbUseUtc.isSelected());
-			mainWindow.config.set(RELATIVE_TIME, cbRelativeTime.isSelected());
-			mainWindow.config.set(PLOT_AZ, cbPlotAz.isSelected());
-			mainWindow.config.set(OUTLINE_PLOT, cbSolidPlot.isSelected());
+//			mainWindow.config.set(SHOW_SUN, cbShowSun.isSelected());
+//			mainWindow.config.set(USE_UTC, cbUseUtc.isSelected());
+//			mainWindow.config.set(RELATIVE_TIME, cbRelativeTime.isSelected());
+//			mainWindow.config.set(PLOT_AZ, cbPlotAz.isSelected());
+//			mainWindow.config.set(OUTLINE_PLOT, cbSolidPlot.isSelected());
 			mainWindow.config.set(SHOW_EL, cbShowEl.isSelected());
-			mainWindow.config.set(SHOW_30_60, cbShow_30_60.isSelected());
+//			mainWindow.config.set(SHOW_30_60, cbShow_30_60.isSelected());
 			mainWindow.config.set(SHOW_ELEVATION_LINES, cbShowElevationLines.isSelected());
 			mainWindow.config.set(SHOW_VERT_AXIS, cbShowVertAxis.isSelected());
 			if (mainWindow.config.getBoolean(DARK_THEME) != cbDarkTheme.isSelected()) {
