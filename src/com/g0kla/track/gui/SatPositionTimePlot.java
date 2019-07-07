@@ -21,21 +21,22 @@ import uk.me.g4dpz.satellite.SatPos;
 
 /**
  * 
-Uses the solarized color scheme which is Copyright (c) 2011 Ethan Schoonover and subject to the following:
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
-documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
-the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and 
-to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED 
-TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
-THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
-CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
-DEALINGS IN THE SOFTWARE.
-
+ * Uses the solarized color scheme which is Copyright (c) 2011 Ethan Schoonover and subject to the following:
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and 
+ * to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * 
+ * THE (Solarized) SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED 
+ * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+ * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+ * DEALINGS IN THE SOFTWARE.
+ * 
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -181,7 +182,7 @@ public class SatPositionTimePlot extends JPanel {
 			plotHor_30_60_Lines(g2, graphHeight, graphWidth);
 		
 
-		// For each sat splot the positions, default is elevation
+		// For each sat plot the positions, default is elevation
 		boolean plotElevation = true;
 		double[] maxy = new double[satPositions.getNumberOfSats()];
 		boolean[] wroteName = new boolean[satPositions.getNumberOfSats()];
@@ -254,8 +255,6 @@ public class SatPositionTimePlot extends JPanel {
 				}
 			}
 		}
-		
-
 		
 		// Vertical "now" line
 		g2.setColor(base01);
@@ -375,9 +374,7 @@ public class SatPositionTimePlot extends JPanel {
 	private void plotTimeAxisByLabel(Graphics g, int graphHeight, int graphWidth) {
 		// Draw baseline with enough space for text under it
 		g.drawLine(0, graphHeight-bottomborder, graphWidth+sideborder*2, graphHeight-bottomborder);
-
-		
-			
+	
 		int calcFreq = satPositions.getCalcFreq();
 		int labelWidth = fontSize * 6;
 		int numberOfLabels = (int) (graphWidth / (double)(labelWidth));
