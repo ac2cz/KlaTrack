@@ -43,7 +43,6 @@ import uk.me.g4dpz.satellite.TLE;
 public class SatManager {
 	public static final String DEFAULT_WEB_SITE_URL = "https://www.amsat.org/amsat/ftp/keps/current/nasabare.txt";
 	public static final String START_WEB_URL = "http";
-	public static final String KEPS_FILE = "nasabare.txt";
 	public static final String SELECTED_SATS = "selected_sats";
 	static MainWindow mainWindow;
 	List<TLE> TLEs;
@@ -120,7 +119,9 @@ public class SatManager {
 		if (urlString.startsWith(SatManager.START_WEB_URL)) {
 			initProgress = new ProgressPanel(mainWindow, msg, false);
 			initProgress.setVisible(true);
-			String file = MainWindow.config.get(MainWindow.DATA_DIR) + File.separator + KEPS_FILE;
+			String[] urlParts = urlString.split("/");
+			String kepsFile = urlParts[urlParts.length-1];
+			String file = MainWindow.config.get(MainWindow.DATA_DIR) + File.separator + kepsFile;
 			String filetmp = fetchTLEFile(urlString, file);
 			if (filetmp != null)
 				parseTLEFile(file, filetmp);
