@@ -66,6 +66,11 @@ import uk.me.g4dpz.satellite.TLE;
  */
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame implements Runnable, WindowListener, ActionListener, ChangeListener {
+	public static final String WINDOW_FC_WIDTH = "mainwindow_fc_width";
+	public static final String WINDOW_FC_HEIGHT = "mainwindow_fc_height";
+	public static final String WINDOW_CURRENT_DIR = "mainwindow_current_dir";
+	public static final String USE_NATIVE_FILE_CHOOSER = "use_native_file_chooser";
+
 	boolean startingUp = true;  // prevents events being processed in startup
 	public SatManager satManager;
 	PositionCalculator positionCalc;

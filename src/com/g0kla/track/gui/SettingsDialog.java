@@ -2,6 +2,7 @@ package com.g0kla.track.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FileDialog;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -13,6 +14,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
 import java.util.List;
 
 import javax.swing.Box;
@@ -22,6 +24,7 @@ import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -136,6 +139,10 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 		lblServerUrl.setToolTipText("This sets the URL we use to fetch and download the kelperian elements");
 		lblServerUrl.setBorder(new EmptyBorder(5, 2, 5, 5) );
 		northpanelB.add(lblServerUrl, BorderLayout.WEST);
+		btnBrowse = new JButton("Local File");
+		btnBrowse.addActionListener(this);
+		northpanelB.add(btnBrowse, BorderLayout.EAST);
+
 		
 		String url = MainWindow.config.get(WEB_SITE_URL);
 		if (url == null)
@@ -635,8 +642,84 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 				((MainWindow)getParent()).startPositionCalc();
 			}
 		}
+		if (e.getSource() == btnBrowse) {
+			File file = null;
+			file = pickFile("Save As", "Save", FileDialog.SAVE);
+			
+			if (file != null) {
+				
+				txtServerUrl.setText(file.getPath());
+				MainWindow mainWindow = ((MainWindow)getParent());
+				mainWindow.config.set(WEB_SITE_URL, txtServerUrl.getText());
+				mainWindow.satManager = new SatManager(mainWindow);
+				DefaultListModel listModel = new DefaultListModel();
+				List<String> names = ((MainWindow)getParent()).satManager.getSatNames();
+				for (String name : names)
+					listModel.addElement(name);
+
+				list.setModel(listModel);
+			}
+
+		}
+
 	}
 
+	private File pickFile(String title, String buttonText, int type) {
+		File file = null;
+		File dir = null;
+		String d = MainWindow.config.get(MainWindow.WINDOW_CURRENT_DIR);
+		if (d == null)
+			dir = new File(".");
+		else
+			if (d != "") {
+				dir = new File(MainWindow.config.get(MainWindow.WINDOW_CURRENT_DIR));
+			}
+		
+		if(MainWindow.config.getBoolean(MainWindow.USE_NATIVE_FILE_CHOOSER)) {
+			FileDialog fd = new FileDialog(this, title, type);
+			// use the native file dialog on the mac
+			if (dir != null) {
+				fd.setDirectory(dir.getAbsolutePath());
+			}
+			fd.setVisible(true);
+			String filename = fd.getFile();
+			String dirname = fd.getDirectory();
+			if (filename == null)
+				;//Log.println("You cancelled the choice");
+			else {
+				System.out.println("File: " + filename);
+				System.out.println("DIR: " + dirname);
+				file = new File(dirname + filename);
+			}
+		} else {
+			JFileChooser fc = new JFileChooser();
+			fc.setApproveButtonText(buttonText);
+			int wid = MainWindow.config.getInt(MainWindow.WINDOW_FC_WIDTH);
+			int height = MainWindow.config.getInt(MainWindow.WINDOW_FC_HEIGHT);
+			if (wid == 0) {
+				wid = 600;
+				height = 600;
+				MainWindow.config.set(MainWindow.WINDOW_FC_WIDTH, wid);
+				MainWindow.config.set(MainWindow.WINDOW_FC_HEIGHT, height);
+			}
+			fc.setPreferredSize(new Dimension(wid, height));
+			if (dir != null)
+				fc.setCurrentDirectory(dir);
+
+			int returnVal = fc.showOpenDialog(this);
+			height = fc.getHeight();
+			wid = fc.getWidth();
+			MainWindow.config.set(MainWindow.WINDOW_FC_HEIGHT, height);
+			MainWindow.config.set(MainWindow.WINDOW_FC_WIDTH,wid);		
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				file = fc.getSelectedFile();
+			}
+		}
+		if (file != null)
+			MainWindow.config.set(MainWindow.WINDOW_CURRENT_DIR, file.getParent());	
+		MainWindow.config.save();
+		return file;
+	}
 	@Override
 	public void focusGained(FocusEvent arg0) {
 		// TODO Auto-generated method stub
