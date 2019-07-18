@@ -152,6 +152,7 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 		txtServerUrl.setColumns(30);
 		
 		txtServerUrl.addActionListener(this);
+		txtServerUrl.addFocusListener(this);
 
 		// Center panel for 2 columns of settings
 		JPanel centerpanel = new JPanel();
@@ -472,31 +473,6 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 		MainWindow.config.save();
 	}
 	
-//	private File pickFile(String title, String buttonText, int type) {
-//		File file = null;
-//		File dir = kepsFileDir;
-//		if (kepsFileDir == null)
-//			dir = new File(".");
-//		
-//			FileDialog fd = new FileDialog(this, title, type);
-//			// use the native file dialog on the mac
-//			if (dir != null) {
-//				fd.setDirectory(dir.getAbsolutePath());
-//			}
-//			fd.setVisible(true);
-//			String filename = fd.getFile();
-//			String dirname = fd.getDirectory();
-//			if (filename == null)
-//				;//Log.println("You cancelled the choice");
-//			else {
-//				System.out.println("File: " + filename);
-//				System.out.println("DIR: " + dirname);
-//				file = new File(dirname + filename);
-//				kepsFileDir = new File(dirname);
-//				config.set(KEPS_FILE_DIR, kepsFileDir.getAbsolutePath());
-//			}
-//		return file;
-//	}
 	
 	@Override
 	public void windowActivated(WindowEvent arg0) {
@@ -647,21 +623,26 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 			file = pickFile("Save As", "Save", FileDialog.SAVE);
 			
 			if (file != null) {
-				
 				txtServerUrl.setText(file.getPath());
-				MainWindow mainWindow = ((MainWindow)getParent());
-				mainWindow.config.set(WEB_SITE_URL, txtServerUrl.getText());
-				mainWindow.satManager = new SatManager(mainWindow);
-				DefaultListModel listModel = new DefaultListModel();
-				List<String> names = ((MainWindow)getParent()).satManager.getSatNames();
-				for (String name : names)
-					listModel.addElement(name);
-
-				list.setModel(listModel);
+				refreshSatList();
 			}
 
 		}
 
+	}
+	
+	private void refreshSatList() {
+		
+		MainWindow mainWindow = ((MainWindow)getParent());
+		mainWindow.config.set(WEB_SITE_URL, txtServerUrl.getText());
+		mainWindow.satManager = new SatManager(mainWindow);
+		DefaultListModel listModel = new DefaultListModel();
+		List<String> names = ((MainWindow)getParent()).satManager.getSatNames();
+		for (String name : names)
+			listModel.addElement(name);
+
+		list.setModel(listModel);
+		((MainWindow)getParent()).startPositionCalc();
 	}
 
 	private File pickFile(String title, String buttonText, int type) {
@@ -747,6 +728,11 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 		if (e.getSource() == txtAltitude) {
 			validAltitude();
 			enableDependentParams();
+		}
+		if (e.getSource() == this.txtServerUrl) {
+			if (MainWindow.config.get(WEB_SITE_URL) == null || !MainWindow.config.get(WEB_SITE_URL).equalsIgnoreCase(txtServerUrl.getText())) {
+				refreshSatList();
+			}
 		}
 		
 	}

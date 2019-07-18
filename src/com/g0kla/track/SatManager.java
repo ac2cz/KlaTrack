@@ -174,7 +174,7 @@ public class SatManager {
 			long date = httpCon.getLastModified();
 			httpCon.disconnect();
 			Date kepsDate = new Date(date);
-			if (kepsDate.getTime() <= lm.getTime()) { // then dont try to update it
+			if (kepsDate.getTime() !=0 && (kepsDate.getTime() <= lm.getTime())) { // then dont try to update it
 				System.out.println(".. keps are current");
 				filetmp = file;
 			} else {
@@ -248,6 +248,9 @@ public class SatManager {
 			MainWindow.errorDialog("ERROR","Could not copy the Keps file from : " + filetmp + "\n and/or write it to " + file + "\n" + e);
 			try { if (!file.equalsIgnoreCase(filetmp)) remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
 		} catch (IndexOutOfBoundsException e) {
+			MainWindow.errorDialog("ERROR","Keps file is corrupt: " + file  + "\n" + e);
+			try { if (!file.equalsIgnoreCase(filetmp)) remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
+		} catch (NumberFormatException e) {
 			MainWindow.errorDialog("ERROR","Keps file is corrupt: " + file  + "\n" + e);
 			try { if (!file.equalsIgnoreCase(filetmp)) remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
 		} finally {
