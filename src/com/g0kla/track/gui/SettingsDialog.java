@@ -730,6 +730,8 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 			enableDependentParams();
 		}
 		if (e.getSource() == this.txtServerUrl) {
+			if (txtServerUrl.getText().equalsIgnoreCase(""))
+				txtServerUrl.setText(SatManager.DEFAULT_WEB_SITE_URL);
 			if (MainWindow.config.get(WEB_SITE_URL) == null || !MainWindow.config.get(WEB_SITE_URL).equalsIgnoreCase(txtServerUrl.getText())) {
 				refreshSatList();
 			}
