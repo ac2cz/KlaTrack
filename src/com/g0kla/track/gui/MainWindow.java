@@ -473,7 +473,7 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 				lastSlice = now;
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
-						if (positionCalc != null) {
+						if (satPositionTimePlot!=null && positionCalc != null) {
 							positionCalc.advanceTimeslice();
 							satPositionTimePlot.setPositions(positionCalc.getSatPositions());
 						}
