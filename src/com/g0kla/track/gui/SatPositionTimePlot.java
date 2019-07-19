@@ -152,14 +152,20 @@ public class SatPositionTimePlot extends JPanel {
 			int labelHeight = fontSize*4;
 			int numVertLabels = (graphHeight-topborder-bottomborder) / labelHeight;
 			if (numVertLabels > 0)
+				
 				if (MainWindow.config.getBoolean(SettingsDialog.PLOT_AZ)) {
 					//int step = 360/numVertLabels;
 					int step = (int)getStep(360, numVertLabels, true);
 					for (int e=0; e<=360; e+=step) {
 						int y = getRatioPosition(0,360, e, graphHeight-topborder-bottomborder);
+						g2.setColor(base01);
 						g2.drawString(""+e, sideborder, y+topborder-lineheight+fontSize/2);
 						if (e != 360 && e != 0)
 						if (MainWindow.config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES)) {
+							if (MainWindow.config.getBoolean(SettingsDialog.DARK_THEME))
+								g2.setColor(new Color(80,80,80));
+							else
+								g2.setColor(new Color(200,200,200));
 							g2.drawLine(0, y+topborder-lineheight, graphWidth+sideborder*2, y+topborder-lineheight);
 						}
 					}
@@ -168,9 +174,14 @@ public class SatPositionTimePlot extends JPanel {
 					int step = (int)getStep(90, numVertLabels, true);
 					for (int e=0; e<=90; e+=step) {
 						int y = getRatioPosition(0,90, e, graphHeight-topborder-bottomborder);
+						g2.setColor(base01);
 						g2.drawString(""+e, sideborder, graphHeight-y-topborder+fontSize/2);
 						if (e != 0 && e != 90)
 						if (MainWindow.config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES)) {
+							if (MainWindow.config.getBoolean(SettingsDialog.DARK_THEME))
+								g2.setColor(new Color(80,80,80));
+							else
+								g2.setColor(new Color(200,200,200));
 							g2.drawLine(0, graphHeight-y-topborder, graphWidth+sideborder*2, graphHeight-y-topborder);
 						}
 
