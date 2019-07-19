@@ -269,9 +269,10 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		try {
 		startPositionCalc();
 		} catch (Exception e) {
-			errorDialog("ERROR", "Could not start the calculations.  Make sure the TLEs were downloaded\n"
-					+ "Or manually copy keps file into the directory:\n"
-					+ MainWindow.config.get(MainWindow.DATA_DIR));
+			errorDialog("ERROR", "Could not start the calculations.  Make sure the TLEs were downloaded.  They are stored in:\n"
+					+ MainWindow.config.get(MainWindow.DATA_DIR) + "\n"
+					+ "You can also manually copy a keps file into the directory or select a different keps file:\n"
+					 + "\nRestart G0KLATracker once a new keps file is defined.\n");
 			return;
 		}
 		satPositionTimePlot = new SatPositionTimePlot(positionCalc.getSatPositions());
