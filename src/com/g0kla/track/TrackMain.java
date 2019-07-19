@@ -30,8 +30,8 @@ import com.g0kla.track.gui.MainWindow;
 public class TrackMain {
 
 	static String HELP = "Usage: TrackMain <dataDirectory>";
-	public static String VERSION_NUM = "1.01b";
-	public static String VERSION = VERSION_NUM + " - 17 Jul 2019";
+	public static String VERSION_NUM = "1.01c";
+	public static String VERSION = VERSION_NUM + " - 18 Jul 2019";
 	
 	public static void main(String[] args) {
 		int arg = 0;

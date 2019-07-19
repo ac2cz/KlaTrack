@@ -180,28 +180,29 @@ public class SatManager {
 			} else {
 				System.out.println(" ... open RBC ..");
 				rbc = Channels.newChannel(website.openStream());
+			}
+			try {
 				System.out.println(" ... open output file .." + filetmp);
 				fos = new FileOutputStream(filetmp);
 				System.out.println(" ... getting file ..");
 				fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-				System.out.println(" ... closing outpt stream ..");
-				fos.close();
-				System.out.println(" ... closing input stream ..");
-				rbc.close();
+
+			} catch (IOException e) {
+				MainWindow.errorDialog("ERROR","Could not open the Keps file " + file + "\n" + e);
+				try { remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
+				return null;
+			} catch (IndexOutOfBoundsException e) {
+				MainWindow.errorDialog("ERROR","Keps file is corrupt: " + file  + "\n" + e);
+				try { remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
+				return null;
 			}
-			
 		} catch (MalformedURLException e) {
 			MainWindow.errorDialog("ERROR","Invalid location for Keps file: " + urlString  + "\n" + e);
 			try { remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
-			return null;
+			return file; // try to use an existing file as we could not download it
 		} catch (IOException e) {
-			MainWindow.errorDialog("ERROR","Could not download the Keps file from : " + urlString + "\n and/or write it to " + file + "\n" + e);
 			try { remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
-			return null;
-		} catch (IndexOutOfBoundsException e) {
-			MainWindow.errorDialog("ERROR","Keps file is corrupt: " + file  + "\n" + e);
-			try { remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
-			return null;
+			return file; // try to use the existing file as we could not download it
 		} finally {
 			try {
 				if (fos != null) fos.close();
@@ -242,10 +243,8 @@ public class SatManager {
 					remove(file + ".tmp");
 			}
 			return;
-
-
 		} catch (IOException e) {
-			MainWindow.errorDialog("ERROR","Could not copy the Keps file from : " + filetmp + "\n and/or write it to " + file + "\n" + e);
+			MainWindow.errorDialog("ERROR","Could not open the Keps file: " + file + "\n" + e);
 			try { if (!file.equalsIgnoreCase(filetmp)) remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
 		} catch (IndexOutOfBoundsException e) {
 			MainWindow.errorDialog("ERROR","Keps file is corrupt: " + file  + "\n" + e);
