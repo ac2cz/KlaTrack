@@ -21,21 +21,22 @@ import uk.me.g4dpz.satellite.SatPos;
 
 /**
  * 
-Uses the solarized color scheme which is Copyright (c) 2011 Ethan Schoonover and subject to the following:
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
-documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
-the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and 
-to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED 
-TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
-THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
-CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
-DEALINGS IN THE SOFTWARE.
-
+ * Uses the solarized color scheme which is Copyright (c) 2011 Ethan Schoonover and subject to the following:
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and 
+ * to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * 
+ * THE (Solarized) SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED 
+ * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+ * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+ * DEALINGS IN THE SOFTWARE.
+ * 
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -151,14 +152,20 @@ public class SatPositionTimePlot extends JPanel {
 			int labelHeight = fontSize*4;
 			int numVertLabels = (graphHeight-topborder-bottomborder) / labelHeight;
 			if (numVertLabels > 0)
+				
 				if (MainWindow.config.getBoolean(SettingsDialog.PLOT_AZ)) {
 					//int step = 360/numVertLabels;
 					int step = (int)getStep(360, numVertLabels, true);
 					for (int e=0; e<=360; e+=step) {
 						int y = getRatioPosition(0,360, e, graphHeight-topborder-bottomborder);
+						g2.setColor(base01);
 						g2.drawString(""+e, sideborder, y+topborder-lineheight+fontSize/2);
 						if (e != 360 && e != 0)
 						if (MainWindow.config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES)) {
+							if (MainWindow.config.getBoolean(SettingsDialog.DARK_THEME))
+								g2.setColor(new Color(80,80,80));
+							else
+								g2.setColor(new Color(200,200,200));
 							g2.drawLine(0, y+topborder-lineheight, graphWidth+sideborder*2, y+topborder-lineheight);
 						}
 					}
@@ -167,9 +174,14 @@ public class SatPositionTimePlot extends JPanel {
 					int step = (int)getStep(90, numVertLabels, true);
 					for (int e=0; e<=90; e+=step) {
 						int y = getRatioPosition(0,90, e, graphHeight-topborder-bottomborder);
+						g2.setColor(base01);
 						g2.drawString(""+e, sideborder, graphHeight-y-topborder+fontSize/2);
 						if (e != 0 && e != 90)
 						if (MainWindow.config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES)) {
+							if (MainWindow.config.getBoolean(SettingsDialog.DARK_THEME))
+								g2.setColor(new Color(80,80,80));
+							else
+								g2.setColor(new Color(200,200,200));
 							g2.drawLine(0, graphHeight-y-topborder, graphWidth+sideborder*2, graphHeight-y-topborder);
 						}
 
@@ -181,7 +193,7 @@ public class SatPositionTimePlot extends JPanel {
 			plotHor_30_60_Lines(g2, graphHeight, graphWidth);
 		
 
-		// For each sat splot the positions, default is elevation
+		// For each sat plot the positions, default is elevation
 		boolean plotElevation = true;
 		double[] maxy = new double[satPositions.getNumberOfSats()];
 		boolean[] wroteName = new boolean[satPositions.getNumberOfSats()];
@@ -254,8 +266,6 @@ public class SatPositionTimePlot extends JPanel {
 				}
 			}
 		}
-		
-
 		
 		// Vertical "now" line
 		g2.setColor(base01);
@@ -375,9 +385,7 @@ public class SatPositionTimePlot extends JPanel {
 	private void plotTimeAxisByLabel(Graphics g, int graphHeight, int graphWidth) {
 		// Draw baseline with enough space for text under it
 		g.drawLine(0, graphHeight-bottomborder, graphWidth+sideborder*2, graphHeight-bottomborder);
-
-		
-			
+	
 		int calcFreq = satPositions.getCalcFreq();
 		int labelWidth = fontSize * 6;
 		int numberOfLabels = (int) (graphWidth / (double)(labelWidth));

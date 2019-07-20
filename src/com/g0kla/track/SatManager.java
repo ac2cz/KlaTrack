@@ -42,6 +42,7 @@ import uk.me.g4dpz.satellite.TLE;
  */
 public class SatManager {
 	public static final String DEFAULT_WEB_SITE_URL = "https://www.amsat.org/amsat/ftp/keps/current/nasabare.txt";
+	public static final String START_WEB_URL = "http";
 	public static final String SELECTED_SATS = "selected_sats";
 	static MainWindow mainWindow;
 	List<TLE> TLEs;
@@ -49,7 +50,7 @@ public class SatManager {
 	
 	public SatManager(MainWindow mainWindow) {
 		this.mainWindow = mainWindow;
-		fetchTLEFile();
+		loadTLEFile();
 		String satCsvList = mainWindow.config.get(SELECTED_SATS);
 		if (satCsvList == null) {
 			List<String> sats = new ArrayList<String>();
@@ -104,18 +105,49 @@ public class SatManager {
 	}
 	
 	/*
+	 * Load the TLE file.  First check if we are pulling from a URL or loading a local file
+	 * 
+	 */
+	public void loadTLEFile() {
+
+		String msg = "Downloading new keps ...                 ";
+		ProgressPanel initProgress = null;
+
+		String urlString = MainWindow.config.get(SettingsDialog.WEB_SITE_URL);
+		if (urlString == null)
+			urlString = SatManager.DEFAULT_WEB_SITE_URL;
+		if (urlString.startsWith(SatManager.START_WEB_URL)) {
+			initProgress = new ProgressPanel(mainWindow, msg, false);
+			initProgress.setVisible(true);
+			String[] urlParts = urlString.split("/");
+			String kepsFile = urlParts[urlParts.length-1];
+			String file = MainWindow.config.get(MainWindow.DATA_DIR) + File.separator + kepsFile;
+			String filetmp = fetchTLEFile(urlString, file);
+			if (filetmp != null)
+				parseTLEFile(file, filetmp);
+			
+		} else {
+			// Assume this is a local file as we do not have a URL
+			msg = "Copying keps from file ...                 ";
+			initProgress = new ProgressPanel(mainWindow, msg, false);
+			initProgress.setVisible(true);
+			String file = MainWindow.config.get(SettingsDialog.WEB_SITE_URL);
+			String filetmp = file;
+			parseTLEFile(file, filetmp);
+		}
+		initProgress.updateProgress(100);
+
+	}
+	
+	/*
 	 * We Fetch a TLE file from amsat.org.  We then see if it contains TLEs for the Spacecraft we are interested in. If it does we
 	 * check if there is a later TLE than the one we have.  If it is, then we append it to the TLE store for the given sat.
 	 * We then load the TLEs for each Sat and store the, in the spacecraft class.  This can then be used to find the position of the spacecraft at 
 	 * any time since launch
 	 */
-
-	public void fetchTLEFile() {
+	public String fetchTLEFile(String urlString, String file) {
 		//System.out.println("Checking for new Keps");
-		String urlString = MainWindow.config.get(SettingsDialog.WEB_SITE_URL);
-		if (urlString == null)
-			urlString = SatManager.DEFAULT_WEB_SITE_URL;
-		String file = MainWindow.config.get(MainWindow.DATA_DIR) + File.separator + "nasabare.txt";
+		
 		String filetmp = file + ".tmp";
 		File f1 = new File(filetmp);
 		File f2 = new File(file);
@@ -129,13 +161,9 @@ public class SatManager {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			return;
+			return null;
 		}
 
-		String msg = "Downloading new keps ...                 ";
-		ProgressPanel initProgress = null;
-		initProgress = new ProgressPanel(mainWindow, msg, false);
-		initProgress.setVisible(true);
 		System.out.println("Downloading new keps ..");
 		URL website;
 		FileOutputStream fos = null;
@@ -146,52 +174,36 @@ public class SatManager {
 			long date = httpCon.getLastModified();
 			httpCon.disconnect();
 			Date kepsDate = new Date(date);
-			if (kepsDate.getTime() <= lm.getTime()) { // then dont try to update it
+			if (kepsDate.getTime() !=0 && (kepsDate.getTime() <= lm.getTime())) { // then dont try to update it
 				System.out.println(".. keps are current");
 				filetmp = file;
 			} else {
 				System.out.println(" ... open RBC ..");
 				rbc = Channels.newChannel(website.openStream());
+			}
+			try {
 				System.out.println(" ... open output file .." + filetmp);
 				fos = new FileOutputStream(filetmp);
 				System.out.println(" ... getting file ..");
 				fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-				System.out.println(" ... closing outpt stream ..");
-				fos.close();
-				System.out.println(" ... closing input stream ..");
-				rbc.close();
-			}
-			System.out.println(" ... parsing file ..");
-			
-			TLEs = loadTLE(filetmp);
-			// this is a good file so we can now use it as the default
-			System.out.println(" ... remove and rename ..");
-			if (!file.equalsIgnoreCase(filetmp)) {
-				// We downloaded a new file so rename tmp as the new file
-				remove(file);
-				copyFile(f1, f2);
-			}
-			try {
-				Thread.sleep(20);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if (!file.equalsIgnoreCase(filetmp))
-				remove(file + ".tmp");
-			return;
 
+			} catch (IOException e) {
+				MainWindow.errorDialog("ERROR","Could not open the Keps file " + file + "\n" + e);
+				try { remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
+				return null;
+			} catch (IndexOutOfBoundsException e) {
+				MainWindow.errorDialog("ERROR","Keps file is corrupt: " + file  + "\n" + e);
+				try { remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
+				return null;
+			}
 		} catch (MalformedURLException e) {
 			MainWindow.errorDialog("ERROR","Invalid location for Keps file: " + urlString  + "\n" + e);
 			try { remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
+			return file; // try to use an existing file as we could not download it
 		} catch (IOException e) {
-			MainWindow.errorDialog("ERROR","Could not download the Keps file from : " + urlString + "\n and/or write it to " + file + "\n" + e);
 			try { remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
-		} catch (IndexOutOfBoundsException e) {
-			MainWindow.errorDialog("ERROR","Keps file is corrupt: " + file  + "\n" + e);
-			try { remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
+			return file; // try to use the existing file as we could not download it
 		} finally {
-			initProgress.updateProgress(100);
 			try {
 				if (fos != null) fos.close();
 				if (rbc != null) rbc.close();
@@ -199,9 +211,53 @@ public class SatManager {
 				// ignore
 			}
 		}
+		return filetmp;
+	}
+
+	/**
+	 * If tmp file has a differnt name we need to copy it, otherwise we just load the file as the keps are current
+	 * @param file
+	 * @param filetmp
+	 */
+	private void parseTLEFile(String file, String filetmp) {
+		System.out.println(" ... parsing file ..");
+		File f1 = new File(filetmp);
+		File f2 = new File(file);
+		try {
+			TLEs = loadTLE(filetmp);
+			// this is a good file so we can now use it as the default
+			if (!filetmp.equals(file)) {
+				System.out.println(" ... remove and rename ..");
+				if (!file.equalsIgnoreCase(filetmp)) {
+					// We downloaded a new file so rename tmp as the new file
+					remove(file);
+					copyFile(f1, f2);
+				}
+				try {
+					Thread.sleep(20);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if (!file.equalsIgnoreCase(filetmp))
+					remove(file + ".tmp");
+			}
+			return;
+		} catch (IOException e) {
+			MainWindow.errorDialog("ERROR","Could not open the Keps file: " + file + "\n" + e);
+			try { if (!file.equalsIgnoreCase(filetmp)) remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
+		} catch (IndexOutOfBoundsException e) {
+			MainWindow.errorDialog("ERROR","Keps file is corrupt: " + file  + "\n" + e);
+			try { if (!file.equalsIgnoreCase(filetmp)) remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
+		} catch (NumberFormatException e) {
+			MainWindow.errorDialog("ERROR","Keps file is corrupt: " + file  + "\n" + e);
+			try { if (!file.equalsIgnoreCase(filetmp)) remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
+		} finally {
+			try { if (!file.equalsIgnoreCase(filetmp)) remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
+		}
 
 	}
-	
+
 	private List<TLE> loadTLE(String file) throws IOException {
 		InputStream is = null;
 		List<TLE> tles = null;

@@ -38,6 +38,7 @@ public class ConfigFile {
 	}
 	
 	public void init() {
+		set(MainWindow.PAST, 30);
 		load();
 	}
 	

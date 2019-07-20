@@ -66,6 +66,11 @@ import uk.me.g4dpz.satellite.TLE;
  */
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame implements Runnable, WindowListener, ActionListener, ChangeListener {
+	public static final String WINDOW_FC_WIDTH = "mainwindow_fc_width";
+	public static final String WINDOW_FC_HEIGHT = "mainwindow_fc_height";
+	public static final String WINDOW_CURRENT_DIR = "mainwindow_current_dir";
+	public static final String USE_NATIVE_FILE_CHOOSER = "use_native_file_chooser";
+
 	boolean startingUp = true;  // prevents events being processed in startup
 	public SatManager satManager;
 	PositionCalculator positionCalc;
@@ -159,9 +164,9 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		butOutlinePlot = createIconButton("/outline_icon2.png","Outline","Toggle Outline vs Solid plot");
 		bottomPanel.add(butOutlinePlot);
 
-		but30_60 = createButton("30-60","Show or hide lines for 30 and 60 degrees elevation");
+		but30_60 = createButton("30-60","Show or hide horizontal lines");
 		bottomPanel.add(but30_60);
-
+		set30_60();
 		butPlotAz = createButton("EL","Toggle between plotting elevation and Azimuth");
 		bottomPanel.add(butPlotAz);
 		if (config.getBoolean((SettingsDialog.PLOT_AZ)))
@@ -264,9 +269,10 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		try {
 		startPositionCalc();
 		} catch (Exception e) {
-			errorDialog("ERROR", "Could not start the calculations.  Make sure the TLEs were downloaded\n"
-					+ "Or manually copy nasabare.txt into the directory:\n"
-					+ MainWindow.config.get(MainWindow.DATA_DIR));
+			errorDialog("ERROR", "Could not start the calculations.  Make sure the TLEs were downloaded.  They are stored in:\n"
+					+ MainWindow.config.get(MainWindow.DATA_DIR) + "\n"
+					+ "You can also manually copy a keps file into the directory or select a different keps file:\n"
+					 + "\nRestart G0KLATracker once a new keps file is defined.\n");
 			return;
 		}
 		satPositionTimePlot = new SatPositionTimePlot(positionCalc.getSatPositions());
@@ -429,7 +435,37 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 			startPositionCalc();
 		}
 		if (e.getSource() == but30_60) {
-			config.set(SettingsDialog.SHOW_30_60, !config.getBoolean(SettingsDialog.SHOW_30_60)); 
+			if (!config.getBoolean(SettingsDialog.SHOW_30_60) && !config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES)) {
+				if (MainWindow.config.getBoolean(SettingsDialog.PLOT_AZ)) {
+					if (MainWindow.config.getBoolean(SettingsDialog.SHOW_VERT_AXIS)) {
+						config.set(SettingsDialog.SHOW_30_60,false);
+						config.set(SettingsDialog.SHOW_ELEVATION_LINES,true);
+					} else {
+						config.set(SettingsDialog.SHOW_30_60,false);
+						config.set(SettingsDialog.SHOW_ELEVATION_LINES,false);
+					}
+				} else {
+					config.set(SettingsDialog.SHOW_30_60,true);
+					config.set(SettingsDialog.SHOW_ELEVATION_LINES,false);
+				}
+			} else if (!config.getBoolean(SettingsDialog.SHOW_30_60) && !config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES)) {
+				config.set(SettingsDialog.SHOW_30_60,true);
+				config.set(SettingsDialog.SHOW_ELEVATION_LINES,false);
+			} 
+			else if (config.getBoolean(SettingsDialog.SHOW_30_60) && !config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES)) {
+				if (MainWindow.config.getBoolean(SettingsDialog.SHOW_VERT_AXIS)) {
+					config.set(SettingsDialog.SHOW_30_60,false);
+					config.set(SettingsDialog.SHOW_ELEVATION_LINES,true);
+				} else {
+					config.set(SettingsDialog.SHOW_30_60,false);
+					config.set(SettingsDialog.SHOW_ELEVATION_LINES,false);
+				}
+			} else if (!config.getBoolean(SettingsDialog.SHOW_30_60) && config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES)) {
+				config.set(SettingsDialog.SHOW_30_60,false);
+				config.set(SettingsDialog.SHOW_ELEVATION_LINES,false);
+			}
+			//			config.set(SettingsDialog.SHOW_30_60, !config.getBoolean(SettingsDialog.SHOW_30_60)); 
+			set30_60();
 			MainWindow.config.save();
 			startPositionCalc();
 		}
@@ -442,6 +478,21 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 				butPlotAz.setText("EL");				
 			startPositionCalc();
 		}
+		
+	}
+	
+	private void set30_60() {
+		if (config.getBoolean(SettingsDialog.SHOW_30_60))
+			but30_60.setText("30-60");
+		else if (!config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES) && !config.getBoolean(SettingsDialog.SHOW_30_60))
+			but30_60.setText("No-lines");
+		else if (config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES)) {
+			if (MainWindow.config.getBoolean(SettingsDialog.SHOW_VERT_AXIS))
+				but30_60.setText("All-lines");
+			else
+				but30_60.setText("No-lines");
+		}
+		
 		
 	}
 	
@@ -468,7 +519,7 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 				lastSlice = now;
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
-						if (positionCalc != null) {
+						if (satPositionTimePlot!=null && positionCalc != null) {
 							positionCalc.advanceTimeslice();
 							satPositionTimePlot.setPositions(positionCalc.getSatPositions());
 						}
