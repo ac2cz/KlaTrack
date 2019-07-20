@@ -164,7 +164,7 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		butOutlinePlot = createIconButton("/outline_icon2.png","Outline","Toggle Outline vs Solid plot");
 		bottomPanel.add(butOutlinePlot);
 
-		but30_60 = createButton("30-60","Show or hide lines for 30 and 60 degrees or all elevations");
+		but30_60 = createButton("30-60","Show or hide horizontal lines");
 		bottomPanel.add(but30_60);
 		set30_60();
 		butPlotAz = createButton("EL","Toggle between plotting elevation and Azimuth");
@@ -436,8 +436,18 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 		}
 		if (e.getSource() == but30_60) {
 			if (!config.getBoolean(SettingsDialog.SHOW_30_60) && !config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES)) {
-				config.set(SettingsDialog.SHOW_30_60,true);
-				config.set(SettingsDialog.SHOW_ELEVATION_LINES,false);
+				if (MainWindow.config.getBoolean(SettingsDialog.PLOT_AZ)) {
+					if (MainWindow.config.getBoolean(SettingsDialog.SHOW_VERT_AXIS)) {
+						config.set(SettingsDialog.SHOW_30_60,false);
+						config.set(SettingsDialog.SHOW_ELEVATION_LINES,true);
+					} else {
+						config.set(SettingsDialog.SHOW_30_60,false);
+						config.set(SettingsDialog.SHOW_ELEVATION_LINES,false);
+					}
+				} else {
+					config.set(SettingsDialog.SHOW_30_60,true);
+					config.set(SettingsDialog.SHOW_ELEVATION_LINES,false);
+				}
 			} else if (!config.getBoolean(SettingsDialog.SHOW_30_60) && !config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES)) {
 				config.set(SettingsDialog.SHOW_30_60,true);
 				config.set(SettingsDialog.SHOW_ELEVATION_LINES,false);
