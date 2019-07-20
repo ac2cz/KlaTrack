@@ -435,16 +435,26 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 			startPositionCalc();
 		}
 		if (e.getSource() == but30_60) {
-			if (!config.getBoolean(SettingsDialog.SHOW_30_60) && !config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES))
+			if (!config.getBoolean(SettingsDialog.SHOW_30_60) && !config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES)) {
 				config.set(SettingsDialog.SHOW_30_60,true);
+				config.set(SettingsDialog.SHOW_ELEVATION_LINES,false);
+			} else if (!config.getBoolean(SettingsDialog.SHOW_30_60) && !config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES)) {
+				config.set(SettingsDialog.SHOW_30_60,true);
+				config.set(SettingsDialog.SHOW_ELEVATION_LINES,false);
+			} 
 			else if (config.getBoolean(SettingsDialog.SHOW_30_60) && !config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES)) {
-				config.set(SettingsDialog.SHOW_30_60,false);
-				config.set(SettingsDialog.SHOW_ELEVATION_LINES,true);
-			} else {
+				if (MainWindow.config.getBoolean(SettingsDialog.SHOW_VERT_AXIS)) {
+					config.set(SettingsDialog.SHOW_30_60,false);
+					config.set(SettingsDialog.SHOW_ELEVATION_LINES,true);
+				} else {
+					config.set(SettingsDialog.SHOW_30_60,false);
+					config.set(SettingsDialog.SHOW_ELEVATION_LINES,false);
+				}
+			} else if (!config.getBoolean(SettingsDialog.SHOW_30_60) && config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES)) {
 				config.set(SettingsDialog.SHOW_30_60,false);
 				config.set(SettingsDialog.SHOW_ELEVATION_LINES,false);
 			}
-//			config.set(SettingsDialog.SHOW_30_60, !config.getBoolean(SettingsDialog.SHOW_30_60)); 
+			//			config.set(SettingsDialog.SHOW_30_60, !config.getBoolean(SettingsDialog.SHOW_30_60)); 
 			set30_60();
 			MainWindow.config.save();
 			startPositionCalc();
@@ -464,10 +474,16 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 	private void set30_60() {
 		if (config.getBoolean(SettingsDialog.SHOW_30_60))
 			but30_60.setText("30-60");
-		else if (config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES))
-			but30_60.setText("All-lines");
-		else
+		else if (!config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES) && !config.getBoolean(SettingsDialog.SHOW_30_60))
 			but30_60.setText("No-lines");
+		else if (config.getBoolean(SettingsDialog.SHOW_ELEVATION_LINES)) {
+			if (MainWindow.config.getBoolean(SettingsDialog.SHOW_VERT_AXIS))
+				but30_60.setText("All-lines");
+			else
+				but30_60.setText("No-lines");
+		}
+		
+		
 	}
 	
 	DecimalFormat f2 = new DecimalFormat("0");
