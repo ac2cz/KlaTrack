@@ -198,6 +198,8 @@ public class SatPositionTimePlot extends JPanel {
 		double[] maxy = new double[satPositions.getNumberOfSats()];
 		boolean[] wroteName = new boolean[satPositions.getNumberOfSats()];
 		int lasty[] = new int[satPositions.getNumberOfSats()];
+		int lastx[] = new int[satPositions.getNumberOfSats()];
+		double prevElev[] = new double[satPositions.getNumberOfSats()];
 		
 		for (int s=0; s<satPositions.getNumberOfSamples(); s++) {
 			SatPos[] satPos = satPositions.get(s);
@@ -205,14 +207,22 @@ public class SatPositionTimePlot extends JPanel {
 			for (int i=0; i < satPos.length; i++) {
 				double el = radToDeg(satPos[i].getElevation());
 				double az = radToDeg(satPos[i].getAzimuth());
-				if (el > 0) {
+				if (el >= 0 || prevElev[i] > 0 && el < 0) {
 					int y = 0;
 					if (!MainWindow.config.getBoolean(SettingsDialog.PLOT_AZ)) {
-						y = getRatioPosition(0,90, el, graphHeight-topborder-bottomborder);
+						if (el < 0)
+							y = 0;
+						else
+							y = getRatioPosition(0,90, el, graphHeight-topborder-bottomborder);
 					} else {
 						y = getRatioPosition(0,360, az, graphHeight-topborder-bottomborder);
 					}
 					int x = getRatioPosition(0.0, (double)satPositions.getNumberOfSamples(), (double)s, graphWidth);
+					if (prevElev[i] < 0 && el >=0) {
+						lastx[i] = x;
+						if (!MainWindow.config.getBoolean(SettingsDialog.PLOT_AZ))
+							y = 0;
+					}
 					//					g2.setColor(satColors[i%satColors.length]);
 					if (MainWindow.config.getBoolean(SettingsDialog.SHOW_SUN)) {
 						if (satPos[i].isEclipsed())
@@ -227,8 +237,9 @@ public class SatPositionTimePlot extends JPanel {
 					if (!MainWindow.config.getBoolean(SettingsDialog.PLOT_AZ)) {
 						if (MainWindow.config.getBoolean(SettingsDialog.OUTLINE_PLOT)) {
 							if (lasty[i] == 0) lasty[i] = graphHeight-topborder-y-2;
-							g2.drawLine(x, lasty[i], x, graphHeight-topborder-y-2);
+							g2.drawLine(lastx[i], lasty[i], x, graphHeight-topborder-y-2);
 							lasty[i] = graphHeight-topborder-y-2;
+							lastx[i] = x;
 						} else {
 							g2.fillRect(x, graphHeight-topborder-y-2, lineWidth, y);							
 						}
@@ -264,6 +275,7 @@ public class SatPositionTimePlot extends JPanel {
 					maxy[i] = 0;
 					wroteName[i] = false;
 				}
+				prevElev[i] = el;
 			}
 		}
 		
