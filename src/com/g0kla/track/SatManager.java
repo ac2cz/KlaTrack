@@ -164,7 +164,6 @@ public class SatManager {
 			return null;
 		}
 
-		System.out.println("Downloading new keps ..");
 		URL website;
 		FileOutputStream fos = null;
 		ReadableByteChannel rbc = null;
@@ -176,8 +175,15 @@ public class SatManager {
 			Date kepsDate = new Date(date);
 			if (kepsDate.getTime() !=0 && (kepsDate.getTime() <= lm.getTime())) { // then dont try to update it
 				System.out.println(".. keps are current");
-				filetmp = file;
+				try {
+					TLEs = loadTLE(file);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return null;
 			} else {
+				System.out.println("Downloading new keps ..");
 				System.out.println(" ... open RBC ..");
 				rbc = Channels.newChannel(website.openStream());
 			}
