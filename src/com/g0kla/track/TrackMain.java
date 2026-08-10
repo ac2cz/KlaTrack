@@ -150,6 +150,7 @@ public class TrackMain {
 		protected void handleException(String tname, Throwable thrown) {
 			String stacktrace = makeShortTrace(thrown.getStackTrace());  
 			MainWindow.errorDialog("SERIOUS EDT ERROR", "Exception on " + tname + ":" + thrown +"\n" + stacktrace);
+			System.exit(1);
 		}
 	}
 	
