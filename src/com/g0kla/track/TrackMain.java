@@ -29,9 +29,9 @@ import com.g0kla.track.gui.MainWindow;
  */
 public class TrackMain {
 
-	static String HELP = "Usage: TrackMain <dataDirectory>";
-	public static String VERSION_NUM = "1.01d";
-	public static String VERSION = VERSION_NUM + " - 8 Oct 2019";
+	static String HELP = "Usage: KlaTrack <dataDirectory>";
+	public static String VERSION_NUM = "1.02a";
+	public static String VERSION = VERSION_NUM + " - 10 Aug 2026";
 	
 	public static void main(String[] args) {
 		int arg = 0;
