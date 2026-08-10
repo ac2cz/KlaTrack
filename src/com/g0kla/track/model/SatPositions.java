@@ -37,7 +37,7 @@ public class SatPositions {
 	int numberOfSamples; // the number of position samples to store - should equal the length of the satPositions queue
 
 	private SatPos[][] satPositionQueue; // the circular buffer, which is a buffer full of lists of sat positions
-	private int nowPointer; // points to the current timeslice
+//	private int nowPointer; // points to the current timeslice
 	private int endPointer; // the end of the data, we add data at this position + 1
 	private int startPointer; // position zero in the circular buffer
 	List<TLE> TLEs;
@@ -50,7 +50,7 @@ public class SatPositions {
 		this.forecastPeriod = forecastPeriod;
 		this.numberOfSamples = (60*oldPeriod + 60*forecastPeriod) / calcFreq;
 		satPositionQueue = new SatPos[numberOfSamples][];
-		nowPointer = 60*oldPeriod/calcFreq + 1;
+//		nowPointer = 60*oldPeriod/calcFreq + 1;
 		endPointer = 0; // special starting position - we need to fill the buffer
 		startPointer = 0; // special starting position - we need to fill the buffer
 	}

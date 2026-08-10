@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URI;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -22,6 +23,7 @@ import com.g0kla.track.gui.MainWindow;
 import com.g0kla.track.gui.SettingsDialog;
 
 import uk.me.g4dpz.satellite.TLE;
+import uk.me.g4dpz.satellite.OmmImporter;
 
 /**
  * 
@@ -49,9 +51,10 @@ public class SatManager {
 	List<String> selectedSats;
 	
 	public SatManager(MainWindow mainWindow) {
-		this.mainWindow = mainWindow;
+		SatManager.mainWindow = mainWindow;
+		
 		loadTLEFile();
-		String satCsvList = mainWindow.config.get(SELECTED_SATS);
+		String satCsvList = MainWindow.config.get(SELECTED_SATS);
 		if (satCsvList == null) {
 			List<String> sats = new ArrayList<String>();
 			sats.add("FalconSat-3");
@@ -91,7 +94,7 @@ public class SatManager {
 			satCsvList = satCsvList + sats.get(i) + ",";
 		}
 		satCsvList = satCsvList + sats.get(sats.size()-1);
-		mainWindow.config.set(SELECTED_SATS, satCsvList);
+		MainWindow.config.set(SELECTED_SATS, satCsvList);
 	}
 	
 	public List<TLE> getTleList() {
@@ -149,7 +152,7 @@ public class SatManager {
 		//System.out.println("Checking for new Keps");
 		
 		String filetmp = file + ".tmp";
-		File f1 = new File(filetmp);
+		//File f1 = new File(filetmp);
 		File f2 = new File(file);
 		Date lm = new Date(f2.lastModified());
 		Date now = new Date();
@@ -169,14 +172,14 @@ public class SatManager {
 		FileOutputStream fos = null;
 		ReadableByteChannel rbc = null;
 		try {
-			website = new URL(urlString);
+			website = URI.create(urlString).toURL();
 			HttpURLConnection httpCon = (HttpURLConnection) website.openConnection();
 			long date = httpCon.getLastModified();
 			httpCon.disconnect();
 			Date kepsDate = new Date(date);
 			if (kepsDate.getTime() !=0 && (kepsDate.getTime() <= lm.getTime())) { // then dont try to update it
 				System.out.println(".. keps are current");
-				filetmp = file;
+				return file;
 			} else {
 				System.out.println(" ... open RBC ..");
 				rbc = Channels.newChannel(website.openStream());
@@ -196,8 +199,8 @@ public class SatManager {
 				try { remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
 				return null;
 			}
-		} catch (MalformedURLException e) {
-			MainWindow.errorDialog("ERROR","Invalid location for Keps file: " + urlString  + "\n" + e);
+		} catch (MalformedURLException | IllegalArgumentException e) {
+		    MainWindow.errorDialog("ERROR","Invalid location for Keps file: " + urlString + "\n" + e);
 			try { remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
 			return file; // try to use an existing file as we could not download it
 		} catch (IOException e) {
@@ -249,7 +252,7 @@ public class SatManager {
 		} catch (IndexOutOfBoundsException e) {
 			MainWindow.errorDialog("ERROR","Keps file is corrupt: " + file  + "\n" + e);
 			try { if (!file.equalsIgnoreCase(filetmp)) remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
-		} catch (NumberFormatException e) {
+		} catch (IllegalArgumentException e) {
 			MainWindow.errorDialog("ERROR","Keps file is corrupt: " + file  + "\n" + e);
 			try { if (!file.equalsIgnoreCase(filetmp)) remove(file + ".tmp"); } catch (IOException e1) {e1.printStackTrace();}
 		} finally {
@@ -258,17 +261,47 @@ public class SatManager {
 
 	}
 
-	private List<TLE> loadTLE(String file) throws IOException {
-		InputStream is = null;
-		List<TLE> tles = null;
-		try {
-			is = new FileInputStream(file);
-			tles = TLE.importSat(is);
-		} finally {
-			if (is != null) is.close();
-		}
-		return tles;
+	public enum ElementFormat { THREE_LINE, OMM_XML, OMM_CSV }
+
+	/** Core loader - caller states the format explicitly. */
+	private List<TLE> loadTLE(String file, ElementFormat fmt) throws IOException {
+	    InputStream is = null;
+	    List<TLE> tles = null;
+	    try {
+	        is = new FileInputStream(file);
+	        switch (fmt) {
+	            case OMM_XML:
+	                tles = OmmImporter.importOmmXml(is);
+	                break;
+	            case OMM_CSV:
+	                tles = OmmImporter.importOmmCsv(is);
+	                break;
+	            default:
+	                tles = TLE.importSat(is);
+	                break;
+	        }
+	    } finally {
+	        if (is != null) is.close();
+	    }
+	    return tles;
 	}
+
+	/** Convenience loader - infers format from the filename, ignoring a
+	    trailing .tmp so validation and final load resolve identically. */
+	private List<TLE> loadTLE(String file) throws IOException {
+	    String name = file.toLowerCase();
+	    if (name.endsWith(".tmp")) {
+	        name = name.substring(0, name.length() - 4);
+	    }
+	    ElementFormat fmt = ElementFormat.THREE_LINE;
+	    if (name.endsWith(".xml")) {
+	        fmt = ElementFormat.OMM_XML;
+	    } else if (name.endsWith(".csv")) {
+	        fmt = ElementFormat.OMM_CSV;
+	    }
+	    return loadTLE(file, fmt);
+	}
+	
 	
 	/**
 	 * Remove a log file from disk and report any errors.

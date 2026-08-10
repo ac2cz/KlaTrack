@@ -264,8 +264,23 @@ public class MainWindow extends JFrame implements Runnable, WindowListener, Acti
 //		bottomPanel.add(lblSampleRate);
 		bottomPanel.setBackground(background);
 
-		satManager = new SatManager(this);
-		
+		try {
+			satManager = new SatManager(this);
+		} catch (IllegalArgumentException ie) {
+			errorDialog("ERROR", "Could not load and parse the TLEs.  Make sure the TLEs were downloaded and not corrupted.  They are stored in:\n"
+					+ MainWindow.config.get(MainWindow.DATA_DIR) + "\n"
+					+ "You can also manually copy a keps file into the directory or select a different keps file:\n"
+					 + "\nRestart G0KLATracker once a new keps file is defined.\n"
+					 + "");
+			System.exit(1);
+		} catch (Exception e) {
+			errorDialog("ERROR", "Could not run the SatManager.  Make sure the TLEs were downloaded and not corrupted.  They are stored in:\n"
+					+ MainWindow.config.get(MainWindow.DATA_DIR) + "\n"
+					+ "You can also manually copy a keps file into the directory or select a different keps file:\n"
+					 + "\nRestart G0KLATracker once a new keps file is defined.\n"
+					 + "");
+			System.exit(1);
+		}
 		try {
 		startPositionCalc();
 		} catch (Exception e) {
