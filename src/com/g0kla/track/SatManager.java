@@ -43,7 +43,7 @@ import uk.me.g4dpz.satellite.OmmImporter;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class SatManager {
-	public static final String DEFAULT_WEB_SITE_URL = "https://www.amsat.org/amsat/ftp/keps/current/nasabare.txt";
+	public static final String DEFAULT_WEB_SITE_URL = "https://amsat.org/tle/current/nasabare.txt";
 	public static final String START_WEB_URL = "http";
 	public static final String SELECTED_SATS = "selected_sats";
 	static MainWindow mainWindow;
@@ -57,14 +57,7 @@ public class SatManager {
 		String satCsvList = MainWindow.config.get(SELECTED_SATS);
 		if (satCsvList == null) {
 			List<String> sats = new ArrayList<String>();
-			sats.add("FalconSat-3");
-			sats.add("AO-7");
-			sats.add("AO-85");
-			sats.add("AO-91");
-			sats.add("AO-92");
-			sats.add("AO-95");
-			sats.add("AO-73");
-			sats.add("AO-90");
+			sats.add("AO-07");
 			sats.add("ISS");
 			
 			setSelectedSats(sats);
